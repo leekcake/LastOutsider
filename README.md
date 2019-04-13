@@ -1,2 +1,7 @@
-# LastOutsider
-A copycat project of Last Origin
+# Last Outsider
+Last Origin를 모방한 게임을 만드는 프로젝트
+## 개발 목적
+시중에 나와있는 게임중 구현할 수 있을것 같은 게임을 실제로 구현해 이후 포토폴리오로 사용
+## 참조사항
+ - 이 프로젝트는 상업적 목적으로 쓰이지 않으며, 나의 실력 한계를 확인하고, 다양한 경험을 통해 실력을 늘리는데 주력함
+
