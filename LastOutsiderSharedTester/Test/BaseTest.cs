@@ -8,13 +8,13 @@ namespace LastOutsiderSharedTester.Test
     {
         protected void Assert(object a, object b)
         {
-            if (a != b)
+            if (!a.Equals(b))
             {
                 throw new Exception($"Assert Failed: {a} != {b}");
             }
         }
 
-        protected void Assert(object[] a, object[] b)
+        protected void Assert(Array a, Array b)
         {
             if(a.Length != b.Length)
             {
@@ -23,9 +23,9 @@ namespace LastOutsiderSharedTester.Test
 
             for(int i = 0; i < a.Length; i++)
             {
-                if(a[i] != b[i])
+                if(!a.GetValue(i).Equals(b.GetValue(i)))
                 {
-                    throw new Exception($"Assert Array Failed, item at ${0} is mismatch: {a[i]} != {b[i]}");
+                    throw new Exception($"Assert Array Failed, item at ${0} is mismatch: {a.GetValue(i)} != {b.GetValue(i)}");
                 }
             }
         }
