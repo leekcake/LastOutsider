@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 
-namespace LastOutsiderShared.Socket
+namespace LastOutsiderShared.Connection
 {
     /*
     GameSocket {
@@ -20,6 +21,8 @@ namespace LastOutsiderShared.Socket
     /// </summary>
     public class GameSocket
     {
+        private EncryptHelper encryptHelper = new EncryptHelper();
 
+        private Socket socket;
     }
 }

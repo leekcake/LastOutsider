@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Xml;
 
-namespace LastOutsiderShared.Socket
+namespace LastOutsiderShared.Connection
 {
     public static class RSACryptoServiceProviderExtensions
     {

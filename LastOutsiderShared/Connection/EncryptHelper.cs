@@ -1,13 +1,12 @@
-﻿using LastOutsiderShared.Socket;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-using static LastOutsiderShared.Socket.RSACryptoServiceProviderExtensions;
+using static LastOutsiderShared.Connection.RSACryptoServiceProviderExtensions;
 
-namespace LastOutsiderShared.Socket
+namespace LastOutsiderShared.Connection
 {
     /// <summary>
     /// 패킷 통신간 암호화를 도움
