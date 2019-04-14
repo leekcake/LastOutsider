@@ -69,3 +69,5 @@ LastOutsiderServer/obj/
 LastOutsiderClient/Assets/LastOutsiderShared.dll
 LastOutsiderShared/bin/
 LastOutsiderShared/obj/
+LastOutsiderSharedTester/obj/
+LastOutsiderSharedTester/bin/
