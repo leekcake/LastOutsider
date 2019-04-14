@@ -8,12 +8,13 @@ namespace LastOutsiderShared.Connection
 {
     /*
     GameSocket {
-        DATA HEADER - 2 BYTE (0x39, 0xbe)
-        IS PING - 1 BYTE (BOOL)
-        if(!IS PING) {
-            DATA LENGTH - 4 BYTE
-            DATA CONTENT - (DATA LENGTH) BYTE
-        }
+	    DATA HEADER - 2 BYTE (0x39, 0xbe)
+	    DATA TYPE - 1 BYTE
+	    if(DATA TYPE != PING) {
+		    SPACE INX - 4 BYTE
+		    DATA LENGTH - 4 BYTE
+		    DATA CONTENT - (DATA LENGTH) BYTE
+	    }
     }
     */
     /// <summary>
