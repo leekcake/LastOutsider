@@ -1,4 +1,5 @@
 ﻿using System;
+using LastOutsiderSharedTester.Test;
 
 namespace LastOutsiderSharedTester
 {
@@ -6,7 +7,10 @@ namespace LastOutsiderSharedTester
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            new EncryptHelperTest().Test();
+
+            Console.WriteLine("End of Main, Enter to End :)");
+            Console.ReadLine();
         }
     }
 }
