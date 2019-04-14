@@ -1,8 +1,11 @@
-﻿using System;
+﻿using LastOutsiderShared.Socket;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+
+using static LastOutsiderShared.Socket.RSACryptoServiceProviderExtensions;
 
 namespace LastOutsiderShared.Socket
 {
@@ -23,25 +26,25 @@ namespace LastOutsiderShared.Socket
             RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
             RSAParameters privateKey = RSA.Create().ExportParameters(true);
             rsa.ImportParameters(privateKey);
-            RSAPrivateKey = rsa.ToXmlString(true);
+            RSAPrivateKey = RSACryptoServiceProviderExtensions.ToXmlString(rsa);
 
             RSAParameters publicKey = new RSAParameters();
             publicKey.Modulus = privateKey.Modulus;
             publicKey.Exponent = privateKey.Exponent;
-            RSAPublicKey = rsa.ToXmlString(false);
+            RSAPublicKey = RSACryptoServiceProviderExtensions.ToXmlString(rsa);
         }
 
         public byte[] EncryptRSA(byte[] original)
         {
             RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
-            rsa.FromXmlString(RSAPublicKey);
+            RSACryptoServiceProviderExtensions.FromXmlString(rsa, RSAPublicKey);
             return rsa.Encrypt(original, false);
         }
 
         public byte[] DecryptRSA(byte[] encrypted)
         {
             RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
-            rsa.FromXmlString(RSAPrivateKey);
+            RSACryptoServiceProviderExtensions.FromXmlString(rsa, RSAPrivateKey);
             return rsa.Decrypt(encrypted, false);
         }
         #endregion
