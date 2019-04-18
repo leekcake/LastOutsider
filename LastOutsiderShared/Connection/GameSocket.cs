@@ -170,7 +170,7 @@ namespace LastOutsiderShared.Connection
         private EncryptHelper encryptHelper = new EncryptHelper();
         private NetworkStream networkStream;
 
-        private SemaphoreSlim writeSemaphoreSlim = new SemaphoreSlim(0, 1);
+        private SemaphoreSlim writeSemaphoreSlim = new SemaphoreSlim(1);
 
         private uint currentSpaceInx = 0;
 
