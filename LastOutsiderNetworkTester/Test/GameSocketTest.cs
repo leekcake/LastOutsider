@@ -107,6 +107,8 @@ namespace LastOutsiderNetworkTester.Test
             Assert(devFlag.ReceivedData, needMoreTime);
 
             Console.WriteLine("요청을 검증했습니다. 정상입니다.");
+
+            listener.Stop();
         }
     }
 }
