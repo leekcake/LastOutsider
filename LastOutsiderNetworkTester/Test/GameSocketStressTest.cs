@@ -14,15 +14,6 @@ namespace LastOutsiderNetworkTester.Test
 {
     public class GameSocketStressTest : BaseTest
     {
-        public static void ClearCurrentConsoleLine()
-        {
-            int currentLineCursor = Console.CursorTop;
-            Console.SetCursorPosition(0, Console.CursorTop);
-            for (int i = 0; i < Console.WindowWidth; i++)
-                Console.Write(" ");
-            Console.SetCursorPosition(0, currentLineCursor);
-        }
-
         protected override string Name => "Strees Test of Game Socket";
 
         private const int MAX_RESPONSE_TIME = 100;
@@ -30,28 +21,56 @@ namespace LastOutsiderNetworkTester.Test
 
         private void PushNewResponseTime(int time)
         {
-            if(responseTimes.Count == MAX_RESPONSE_TIME)
+            lock (this)
             {
-                responseTimes.RemoveAt(0);
+                if (responseTimes.Count == MAX_RESPONSE_TIME)
+                {
+                    responseTimes.RemoveAt(0);
+                }
+                responseTimes.Add(time);
+                responseCount++;
             }
-            responseTimes.Add(time);
         }
+
+        private int responseCount = 0;
 
         private int Min {
             get {
-                return responseTimes.Min();
+                try
+                {
+                    return responseTimes.Min();
+                }
+                catch
+                {
+                    return -1;
+                }
             }
         }
 
         private double Avg {
             get {
-                return Math.Round(responseTimes.Average(), 3);
+                try
+                {
+                    return Math.Round(responseTimes.Average(), 3);
+                }
+                catch
+                {
+                    return -1;
+                }
             }
         }
 
         private int Max {
             get {
-                return responseTimes.Max();
+                try
+                {
+
+                    return responseTimes.Max();
+                }
+                catch
+                {
+                    return -1;
+                }
             }
         }
 
@@ -99,25 +118,26 @@ namespace LastOutsiderNetworkTester.Test
             {
                 new Task(async () =>
                 {
-                    while( owner.TestAlive )
+                    while (owner.TestAlive)
                     {
                         long start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
                         await client.SendPingAsync();
                         await server.SendPingAsync();
 
-                        byte[] data = new byte[ random.Next(1024, 1024*64) ];
+                        byte[] data = new byte[random.Next(1024, 1024 * 64)];
                         random.NextBytes(data);
 
                         var DRR = new DummyResponseReceiver();
                         await client.SendRequestAsync("dummy", data, DRR);
 
-                        DRR.ResponsedEvent.WaitOne();
+                        if(!DRR.Responsed)
+                            DRR.ResponsedEvent.WaitOne();
 
                         long end = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
                         owner.PushNewResponseTime((int)(end - start));
 
-                        await Task.Delay( random.Next(100, 10000) );
+                        await Task.Delay(random.Next(100, 1000));
                     }
                 }).Start();
             }
@@ -135,36 +155,35 @@ namespace LastOutsiderNetworkTester.Test
             //Client Count Updater
             Console.WriteLine("Game Socket Stress Test");
             Console.WriteLine("Test unilt avg over 5000ms");
-            Console.WriteLine("Waiting for Current State");
-            new Task(async () =>
-            {
-                while (TestAlive)
-                {
-                    ClearCurrentConsoleLine();
-                    if (Avg > 5000)
-                    {
-                        TestAlive = false;
-                        Console.WriteLine($"End State(Client/Min/Avg/Max) : {clientCount}C / {Min}ms / {Avg}ms / {Max}ms");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Current State(Client/Min/Avg/Max) : {clientCount}C / {Min}ms / {Avg}ms / {Max}ms");
-                    }
-                    await Task.Delay(1000);
-                }
-            }).Start();
 
             while (TestAlive)
             {
-                var serverTask = listener.AcceptTcpClientAsync();
-                var clientTcp = new TcpClient();
-                var clientTask = clientTcp.ConnectAsync(IPAddress.Loopback, 8039);
+                for (int i = 0; i < 10; i++)
+                {
+                    var serverTask = listener.AcceptTcpClientAsync();
+                    var clientTcp = new TcpClient();
+                    var clientTask = clientTcp.ConnectAsync(IPAddress.Loopback, 8039);
 
-                Task.WaitAll(serverTask, clientTask);
+                    Task.WaitAll(serverTask, clientTask);
 
-                new TestLauncher(this, serverTask.GetAwaiter().GetResult().GetStream(), clientTcp.GetStream()).Run();
-                clientCount++;
+                    new TestLauncher(this, serverTask.GetAwaiter().GetResult().GetStream(), clientTcp.GetStream()).Run();
+                    clientCount++;
+                }
                 Thread.Sleep(1000);
+
+                lock (this)
+                {
+                    if (Avg > 5000)
+                    {
+                        TestAlive = false;
+                        Console.WriteLine($"End State(Client(ResponseCount)/Min/Avg/Max) : {clientCount}({responseCount}) / {Min}ms / {Avg}ms / {Max}ms");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Current State(Client(ResponseCount)/Min/Avg/Max) : {clientCount}({responseCount}) / {Min}ms / {Avg}ms / {Max}ms");
+                    }
+                    responseCount = 0;
+                }
             }
 
             listener.Stop();
