@@ -226,7 +226,7 @@ namespace LastOutsiderShared.Connection
         {
             await Send(length);
             byte[] buffer = new byte[32768];
-            int read, left = 0;
+            int read, left = length;
             while (left > 0 &&
                    (read = await stream.ReadAsync(buffer, 0, Math.Min(buffer.Length, left))) > 0)
             {
