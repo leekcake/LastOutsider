@@ -73,7 +73,7 @@ namespace LastOutsiderNetworkTester.Test
             int tryCount = 0;
             while (server.LastPongTime == -1 || client.LastPongTime == -1)
             {
-                Console.WriteLine($"서버와 클라이언트가 상대방의 핑을 기다리는중... {tryCount}000밀리초 지남");
+                Console.WriteLine($"서버와 클라이언트가 상대방의 핑을 기다리는중... {tryCount}00밀리초 지남");
                 Thread.Sleep(100);
                 tryCount++;
             }
@@ -97,7 +97,7 @@ namespace LastOutsiderNetworkTester.Test
             tryCount = 0;
             while (!messageFlag.IsReceived || !devFlag.IsReceived)
             {
-                Console.WriteLine($"클라이언트가 요청 2개의 응답을 기다리는중 {tryCount}000밀리초 지남");
+                Console.WriteLine($"클라이언트가 요청 2개의 응답을 기다리는중 {tryCount}00밀리초 지남");
                 Thread.Sleep(100);
                 tryCount++;
             }
