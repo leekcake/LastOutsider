@@ -1,7 +1,6 @@
 ﻿using LastOutsiderShared.Connection;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using TestBase;
 
 namespace LastOutsiderSharedTester.Test
 {

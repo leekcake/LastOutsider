@@ -71,3 +71,7 @@ LastOutsiderShared/bin/
 LastOutsiderShared/obj/
 LastOutsiderSharedTester/obj/
 LastOutsiderSharedTester/bin/
+LastOutsiderNetworkTester/obj/
+TestBase/obj/
+LastOutsiderNetworkTester/bin/
+TestBase/bin/

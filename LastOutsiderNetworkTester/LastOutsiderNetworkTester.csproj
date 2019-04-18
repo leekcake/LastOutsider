@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\LastOutsiderServer\LastOutsiderServer.csproj" />
     <ProjectReference Include="..\LastOutsiderShared\LastOutsiderShared.csproj" />
     <ProjectReference Include="..\TestBase\TestBase.csproj" />
   </ItemGroup>

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace LastOutsiderSharedTester.Test
+namespace TestBase
 {
     public abstract class BaseTest
     {
