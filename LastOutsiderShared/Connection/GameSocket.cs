@@ -64,7 +64,7 @@ namespace LastOutsiderShared.Connection
                 this.owner = owner;
             }
 
-            private async void readFullyOnNetwork(byte[] buffer, int off, int len)
+            private async Task readFullyOnNetwork(byte[] buffer, int off, int len)
             {
                 int left = len;
                 while (left > 0)
@@ -72,7 +72,6 @@ namespace LastOutsiderShared.Connection
                     var read = await owner.networkStream.ReadAsync(buffer, off, left);
                     if (read == 0) //Stream closed?
                     {
-
                         if (!owner.networkStream.CanRead)
                         {
                             throw new Exception("Can't read from NetworkStream, Closed Connection?");
@@ -100,34 +99,43 @@ namespace LastOutsiderShared.Connection
             {
                 Task.Factory.StartNew(async () =>
                {
-                   byte[] headerBuffer = new byte[2];
-                   while (true)
+                   try
                    {
-                       readTaskCancellationToken.Token.ThrowIfCancellationRequested();
-                       var header = await readFullyOnNetwork(HEADER.Length);
-                       readTaskCancellationToken.Token.ThrowIfCancellationRequested();
-                       if (!Enumerable.SequenceEqual(header, HEADER))
+                       byte[] headerBuffer = new byte[2];
+                       while (true)
                        {
-                           //다른 통신 주체가 이 패킷 규약을 따르지 않는 다른 프로그램인 경우
-                           //드물게 TCP 통신이 오염되었고 그 오염된 데이터를 TCP가 살리지 못한경우
-                           try
+                           readTaskCancellationToken.Token.ThrowIfCancellationRequested();
+                           var header = await readFullyOnNetwork(HEADER.Length);
+                           readTaskCancellationToken.Token.ThrowIfCancellationRequested();
+                           if (!Enumerable.SequenceEqual(header, HEADER))
                            {
-                               owner.networkStream.Close(); //말이 안통하는게 당연하기 때문에 일단 연결을 닫음
+                               //다른 통신 주체가 이 패킷 규약을 따르지 않는 다른 프로그램인 경우
+                               //드물게 TCP 통신이 오염되었고 그 오염된 데이터를 TCP가 살리지 못한경우
+                               try
+                               {
+                                   owner.networkStream.Close(); //말이 안통하는게 당연하기 때문에 일단 연결을 닫음
+                               }
+                               catch { }
+                               break;
                            }
-                           catch { }
-                           break;
-                       }
 
-                       var type = await readFullyOnNetwork(1);
-                       switch ((DataType)type[0])
-                       {
-                           case DataType.Ping:
-                               owner.SendPongAsync();
-                               break;
-                           case DataType.Pong:
-                               //소켓이 아직 살아있음!
-                               break;
+
+                           var type = await readFullyOnNetwork(1);
+                           switch ((DataType)type[0])
+                           {
+                               case DataType.Ping:
+                                   owner.SendPongAsync();
+                                   break;
+                               case DataType.Pong:
+                                   owner.LastPongTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+                                   //소켓이 아직 살아있음!
+                                   break;
+                           }
                        }
+                   }
+                   catch (Exception ex)
+                   {
+                       //TODO: 더 나은 에러 체크
                    }
                });
             }
@@ -140,6 +148,8 @@ namespace LastOutsiderShared.Connection
         private NetworkStream networkStream;
 
         private uint currentSpaceInx = 0;
+
+        public long LastPongTime = -1;
 
         private ReadTask readTask;
         public void AttachNetworkStream(NetworkStream stream)
