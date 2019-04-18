@@ -86,7 +86,7 @@ namespace LastOutsiderShared.Connection
             private async Task<byte[]> readFullyOnNetwork(int len)
             {
                 var buf = new byte[len];
-                readFullyOnNetwork(buf, 0, len);
+                await readFullyOnNetwork(buf, 0, len);
                 return buf;
             }
 
