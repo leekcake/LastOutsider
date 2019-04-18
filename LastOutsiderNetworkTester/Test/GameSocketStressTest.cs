@@ -98,9 +98,14 @@ namespace LastOutsiderNetworkTester.Test
 
         private class TestLauncher
         {
-            private GameSocketStressTest owner;
+            private static byte[] data = new byte[1024 * 32];
+            static TestLauncher()
+            {
+                Random random = new Random();
+                random.NextBytes(data);
+            }
 
-            private Random random = new Random();
+            private GameSocketStressTest owner;
 
             private GameSocket server, client;
 
@@ -118,26 +123,24 @@ namespace LastOutsiderNetworkTester.Test
             {
                 new Task(async () =>
                 {
+                    
                     while (owner.TestAlive)
                     {
                         long start = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-                        await client.SendPingAsync();
-                        await server.SendPingAsync();
-
-                        byte[] data = new byte[random.Next(1024, 1024 * 64)];
-                        random.NextBytes(data);
 
                         var DRR = new DummyResponseReceiver();
-                        await client.SendRequestAsync("dummy", data, DRR);
+                        client.SendRequestAsync("dummy", data, DRR);
 
-                        if(!DRR.Responsed)
-                            DRR.ResponsedEvent.WaitOne();
+                        while(!DRR.Responsed)
+                        {
+                            await Task.Delay(10);
+                        }
 
                         long end = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
                         owner.PushNewResponseTime((int)(end - start));
 
-                        await Task.Delay(random.Next(100, 1000));
+                        await Task.Delay( 1000 );
                     }
                 }).Start();
             }
