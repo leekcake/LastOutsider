@@ -149,6 +149,7 @@ namespace LastOutsiderShared.Connection
                                        new Task(() =>
                                        {
                                            owner.responseReceivers[spaceInx].OnResponse(data);
+                                           owner.responseReceivers.Remove(spaceInx);
                                        }).Start();
                                    }
                                    break;
