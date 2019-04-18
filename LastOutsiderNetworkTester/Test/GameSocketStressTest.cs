@@ -144,11 +144,11 @@ namespace LastOutsiderNetworkTester.Test
                     if (Avg > 5000)
                     {
                         TestAlive = false;
-                        Console.WriteLine($"End State(Client/Min/Avg/Max) : ${clientCount}C / {Min}ms / {Avg}ms {Max}ms");
+                        Console.WriteLine($"End State(Client/Min/Avg/Max) : {clientCount}C / {Min}ms / {Avg}ms / {Max}ms");
                     }
                     else
                     {
-                        Console.WriteLine($"Current State(Client/Min/Avg/Max) : ${clientCount}C / {Min}ms / {Avg}ms {Max}ms");
+                        Console.WriteLine($"Current State(Client/Min/Avg/Max) : {clientCount}C / {Min}ms / {Avg}ms / {Max}ms");
                     }
                     await Task.Delay(1000);
                 }
@@ -163,7 +163,7 @@ namespace LastOutsiderNetworkTester.Test
                 Task.WaitAll(serverTask, clientTask);
 
                 new TestLauncher(this, serverTask.GetAwaiter().GetResult().GetStream(), clientTcp.GetStream()).Run();
-
+                clientCount++;
                 Thread.Sleep(1000);
             }
 
