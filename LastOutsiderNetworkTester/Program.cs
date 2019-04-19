@@ -8,7 +8,7 @@ namespace LastOutsiderNetworkTester
         static void Main(string[] args)
         {
             new GameSocketTest().Test();
-            new GameSocketStressTest().Test();
+            //new GameSocketStressTest().Test();
             Console.WriteLine("End.");
             Console.ReadLine();
         }
