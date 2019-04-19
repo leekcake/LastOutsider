@@ -89,20 +89,28 @@ namespace LastOutsiderShared.Connection
             return cipher;
         }
 
-        public byte[] EncryptAES(byte[] original)
+        public byte[] EncryptAES(byte[] original, int offset = 0, int length = -1)
         {
+            if(length == -1)
+            {
+                length = original.Length;
+            }
             var cipher = CreateAESCipher();
             var encryptor = cipher.CreateEncryptor();
-            var result = encryptor.TransformFinalBlock(original, 0, original.Length);
+            var result = encryptor.TransformFinalBlock(original, offset, length);
             encryptor.Dispose();
             return result;
         }
 
-        public byte[] DecryptAES(byte[] encrypted)
+        public byte[] DecryptAES(byte[] encrypted, int offset = 0, int length = -1)
         {
+            if (length == -1)
+            {
+                length = encrypted.Length;
+            }
             var cipher = CreateAESCipher();
             var decrypter = cipher.CreateDecryptor();
-            var result = decrypter.TransformFinalBlock(encrypted, 0, encrypted.Length);
+            var result = decrypter.TransformFinalBlock(encrypted, offset, length);
             decrypter.Dispose();
             return result;
         }
