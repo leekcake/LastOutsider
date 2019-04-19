@@ -15,6 +15,8 @@ namespace LastOutsiderShared.Connection
 	    DATA HEADER - 2 BYTE (0x39, 0xbe)
 	    DATA TYPE - 1 BYTE
 	    if(DATA TYPE != PING) {
+            ENCRYPTED? - 1 BYTE
+            COMPRESSED? - 1 BYTE
 		    SPACE INX - 4 BYTE
 		    DATA LENGTH - 4 BYTE
 		    DATA CONTENT - (DATA LENGTH) BYTE
@@ -27,7 +29,7 @@ namespace LastOutsiderShared.Connection
     public class GameSocket
     {
         #region Pre-defined Head of Packet
-        private static readonly byte[] HEADER = new byte[]
+        public static readonly byte[] HEADER = new byte[]
         {
             0x39, 0xbe
         };
