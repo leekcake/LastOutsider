@@ -13,6 +13,19 @@ namespace LastOutsiderShared.Connection
     /// </summary>
     public class EncryptHelper
     {
+        public bool UseRSA {
+            get; set;
+        } = false;
+        public bool UseAES {
+            get; set;
+        } = false;
+
+        public bool UseEncrypt {
+            get {
+                return UseAES || UseRSA;
+            }
+        }
+
         #region RSA
         private string RSAPrivateKey = null;
         public string RSAPublicKey {
