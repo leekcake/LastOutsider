@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.IO;
+using System.IO.Compression;
 
 namespace LastOutsiderShared.Connection
 {
@@ -90,6 +91,24 @@ namespace LastOutsiderShared.Connection
                 readTaskCancellationToken.Cancel();
             }
 
+            private byte[] Decompress(byte[] input)
+            {
+                using (var source = new MemoryStream(input))
+                {
+                    byte[] lengthBytes = new byte[4];
+                    source.Read(lengthBytes, 0, 4);
+
+                    var length = BitConverter.ToInt32(lengthBytes, 0);
+                    using (var decompressionStream = new GZipStream(source,
+                        CompressionMode.Decompress))
+                    {
+                        var result = new byte[length];
+                        decompressionStream.Read(result, 0, length);
+                        return result;
+                    }
+                }
+            }
+
             public void Run()
             {
                 Task.Factory.StartNew(async () =>
@@ -97,10 +116,12 @@ namespace LastOutsiderShared.Connection
                    try
                    {
                        byte[] headerBuffer = new byte[2];
+                       START:
                        while (true)
                        {
-                           readTaskCancellationToken.Token.ThrowIfCancellationRequested();
-                           var header = await owner.Receive(HEADER.Length);
+                           Stream stream = owner.networkStream;
+
+                           var header = await stream.Receive(HEADER.Length);
                            readTaskCancellationToken.Token.ThrowIfCancellationRequested();
                            if (!Enumerable.SequenceEqual(header, HEADER))
                            {
@@ -114,21 +135,45 @@ namespace LastOutsiderShared.Connection
                                break;
                            }
 
-                           var type = await owner.Receive(1);
+                           var type = await stream.Receive(1);
+
                            switch ((DataType)type[0])
                            {
                                case DataType.Ping:
                                    owner.SendPongAsync();
-                                   break;
+                                   goto START;
                                case DataType.Pong:
                                    owner.LastPongTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
                                    //소켓이 아직 살아있음!
-                                   break;
+                                   goto START;
+                           }
+
+                           var encrypted = (await stream.Receive(1))[0] == 1;
+                           var compressed = (await stream.Receive(1))[0] == 1;
+
+                           if(encrypted || compressed)
+                           {
+                               byte[] data = await stream.ReceiveByteArray();
+                               if(compressed)
+                               {
+                                   data = Decompress(data);
+                               }
+
+                               if(encrypted)
+                               {
+                                   data = owner.encryptHelper.DecryptAES(data, 0, data.Length);
+                               }
+
+                               stream = new MemoryStream(data);
+                           }
+
+                           switch((DataType)type[1])
+                           {
                                case DataType.Request:
                                    {
-                                       var spaceInx = await owner.ReceiveUInt();
-                                       var key = await owner.ReceiveString();
-                                       var data = await owner.ReceiveByteArray();
+                                       var spaceInx = await stream.ReceiveUInt();
+                                       var key = await stream.ReceiveString();
+                                       var data = await stream.ReceiveByteArray();
                                        if (owner.requestReceivers.ContainsKey(key))
                                        {
                                            new Task(async () =>
@@ -146,8 +191,8 @@ namespace LastOutsiderShared.Connection
                                    break;
                                case DataType.Response:
                                    {
-                                       var spaceInx = await owner.ReceiveUInt();
-                                       var data = await owner.ReceiveByteArray();
+                                       var spaceInx = await owner.networkStream.ReceiveUInt();
+                                       var data = await owner.networkStream.ReceiveByteArray();
                                        new Task(() =>
                                        {
                                            owner.responseReceivers[spaceInx].OnResponse(data);
@@ -173,8 +218,6 @@ namespace LastOutsiderShared.Connection
         private EncryptHelper encryptHelper = new EncryptHelper();
         private NetworkStream networkStream;
 
-        private SemaphoreSlim writeSemaphoreSlim = new SemaphoreSlim(1);
-
         private uint currentSpaceInx = 0;
 
         public long LastPongTime = -1;
@@ -196,108 +239,14 @@ namespace LastOutsiderShared.Connection
             readTask.Run();
         }
 
-        #region Send/Receive Helper Method
-        private async Task Send(int i)
-        {
-            var lenByte = BitConverter.GetBytes(i);
-            await networkStream.WriteAsync(lenByte, 0, lenByte.Length);
-        }
-
-        private async Task Send(uint i)
-        {
-            var lenByte = BitConverter.GetBytes(i);
-            await networkStream.WriteAsync(lenByte, 0, lenByte.Length);
-        }
-
-        private async Task Send(long l)
-        {
-            var lenByte = BitConverter.GetBytes(l);
-            await networkStream.WriteAsync(lenByte, 0, lenByte.Length);
-        }
-
-        private async Task Send(string str)
-        {
-            await Send(Encoding.UTF8.GetBytes(str));
-        }
-
-        private Task Send(byte[] data)
-        {
-            return Send(new MemoryStream(data), data.Length);
-        }
-
-        private async Task Send(Stream stream, int length)
-        {
-            await Send(length);
-            byte[] buffer = new byte[32768];
-            int read, left = length;
-            while (left > 0 &&
-                   (read = await stream.ReadAsync(buffer, 0, Math.Min(buffer.Length, left))) > 0)
-            {
-                await networkStream.WriteAsync(buffer, 0, read);
-                left -= read;
-            }
-        }
-
-        private async Task Receive(byte[] buffer, int off, int len)
-        {
-            int left = len;
-            while (left > 0)
-            {
-                var read = await networkStream.ReadAsync(buffer, off, left);
-                if (read == 0) //Stream closed?
-                {
-                    if (!networkStream.CanRead)
-                    {
-                        throw new Exception("Can't read from NetworkStream, Closed Connection?");
-                    }
-                    continue;
-                }
-                off += read;
-                left -= read;
-            }
-        }
-
-        private async Task<byte[]> Receive(int len)
-        {
-            var buf = new byte[len];
-            await Receive(buf, 0, len);
-            return buf;
-        }
-
-        private async Task<int> ReceiveInt()
-        {
-            return BitConverter.ToInt32(await Receive(sizeof(int)), 0);
-        }
-
-        private async Task<uint> ReceiveUInt()
-        {
-            return BitConverter.ToUInt32(await Receive(sizeof(uint)), 0);
-        }
-
-        private async Task<byte[]> ReceiveByteArray()
-        {
-            return await Receive(await ReceiveInt());
-        }
-
-        private async Task<string> ReceiveString()
-        {
-            return Encoding.UTF8.GetString(await ReceiveByteArray());
-        }
-
-        #endregion
-
         public async Task SendPingAsync()
         {
-            writeSemaphoreSlim.Wait();
             await networkStream.WriteAsync(PING_DATA, 0, PING_DATA.Length);
-            writeSemaphoreSlim.Release();
         }
 
         public async Task SendPongAsync()
         {
-            writeSemaphoreSlim.Wait();
             await networkStream.WriteAsync(PONG_DATA, 0, PONG_DATA.Length);
-            writeSemaphoreSlim.Release();
         }
 
         public Task SendRequestAsync(string key, byte[] data, ResponseReceiver receiver)
@@ -307,14 +256,16 @@ namespace LastOutsiderShared.Connection
 
         public async Task SendRequestAsync(string key, Stream stream, int length, ResponseReceiver receiver)
         {
-            writeSemaphoreSlim.Wait();
+            PacketContainer packetContainer = new PacketContainer(DataType.Request, encryptHelper);
+
             var spaceInx = currentSpaceInx++;
             responseReceivers[spaceInx] = receiver;
-            await networkStream.WriteAsync(REQUEST_HEAD, 0, REQUEST_HEAD.Length);
-            await Send(spaceInx);
-            await Send(key);
-            await Send(stream, length);
-            writeSemaphoreSlim.Release();
+
+            await packetContainer.WriteAsync(spaceInx);
+            await packetContainer.WriteAsync(key);
+            await packetContainer.WriteAsync(stream, length);
+
+            await packetContainer.Flush(networkStream);
         }
 
         public Task SendResponseAsync(uint spaceInx, byte[] data)
@@ -324,11 +275,11 @@ namespace LastOutsiderShared.Connection
 
         public async Task SendResponseAsync(uint spaceInx, Stream stream, int length)
         {
-            writeSemaphoreSlim.Wait();
-            await networkStream.WriteAsync(RESPONSE_HEAD, 0, REQUEST_HEAD.Length);
-            await Send(spaceInx);
-            await Send(stream, length);
-            writeSemaphoreSlim.Release();
+            PacketContainer packetContainer = new PacketContainer(DataType.Response, encryptHelper);
+            await packetContainer.WriteAsync(spaceInx);
+            await packetContainer.WriteAsync(stream, length);
+
+            await packetContainer.Flush(networkStream);
         }
     }
 }
