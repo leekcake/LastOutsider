@@ -207,6 +207,8 @@ namespace LastOutsiderNetworkTester.Test
                 failMessage = message;
             }));
             WaitForFlag(() => { return data != null || failMessage != null; }, "클라이언트가 시작에 필요한 정보를 가져오는중... {0}");
+            throwIfFail();
+
             listener.Stop();
         }
     }
