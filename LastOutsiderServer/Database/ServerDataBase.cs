@@ -8,13 +8,18 @@ namespace LastOutsiderServer.Database
 {
     public class ServerDataBase
     {
+        public static ServerDataBase Instance {
+            get; private set;
+        } = new ServerDataBase();
+
         private LiteDatabase database = new LiteDatabase(@"Server.db");
 
         private const string ACCOUNT_COLLECTION = "Accounts";
 
-        public Account CreateAccount(byte[] guestToken)
+        public Account CreateAccount(byte[] authToken)
         {
             var account = new Account();
+            account.authToken = authToken;
             var accounts = database.GetCollection<Account>(ACCOUNT_COLLECTION);
             accounts.Insert(account);
 

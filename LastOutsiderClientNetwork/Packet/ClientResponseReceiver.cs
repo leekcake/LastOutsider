@@ -19,4 +19,19 @@ namespace LastOutsiderClientNetwork.Packet
         public abstract void OnResponse(byte[] response);
         public abstract void OnResponseError(string message);
     }
+
+    public abstract class ClientResponseReceiver<T> : ResponseReceiver
+    {
+        protected GameSocket socket;
+        protected FinishListener<T> finishListener;
+
+        public ClientResponseReceiver(GameSocket socket, FinishListener<T> finishAction)
+        {
+            this.socket = socket;
+            this.finishListener = finishAction;
+        }
+
+        public abstract void OnResponse(byte[] response);
+        public abstract void OnResponseError(string message);
+    }
 }

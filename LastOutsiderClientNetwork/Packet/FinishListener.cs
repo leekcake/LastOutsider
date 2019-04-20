@@ -15,4 +15,16 @@ namespace LastOutsiderClientNetwork.Packet
             OnError = onError;
         }
     }
+
+    public class FinishListener<T>
+    {
+        public Action<T> OnFinish;
+        public Action<string> OnError;
+
+        public FinishListener(Action<T> onFinish, Action<string> onError)
+        {
+            OnFinish = onFinish;
+            OnError = onError;
+        }
+    }
 }

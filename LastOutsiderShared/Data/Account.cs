@@ -4,6 +4,7 @@ using System.Text;
 
 namespace LastOutsiderShared.Data
 {
+    [Serializable]
     /// <summary>
     /// 라스트 아웃사이더의 유저 계정
     /// </summary>
