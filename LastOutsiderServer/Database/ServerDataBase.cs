@@ -29,7 +29,13 @@ namespace LastOutsiderServer.Database
 
         public Account GetAccount(int id)
         {
-            return database.GetCollection<Account>(ACCOUNT_COLLECTION).Find(x => x.Id == id).First();
+            var collections = database.GetCollection<Account>(ACCOUNT_COLLECTION);
+            var find = collections.Find(x => x.Id == id);
+            if(find.Count() == 0)
+            {
+                return null;
+            }
+            return find.First();
         }
     }
 }
