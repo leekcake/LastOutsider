@@ -188,7 +188,7 @@ namespace LastOutsiderNetworkTester.Test
             throwIfFail();
 
             var goodLoginPass = false;
-            loginAccount.SendPacketAsync(client, generatedAccount.Id, new byte[128], new FinishListener(() =>
+            loginAccount.SendPacketAsync(client, generatedAccount.Id, authToken, new FinishListener(() =>
             {
                 goodLoginPass = true;
             }, (message) => {
