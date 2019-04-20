@@ -167,7 +167,7 @@ namespace LastOutsiderShared.Connection
                                stream = new MemoryStream(data);
                            }
 
-                           switch((DataType)type[1])
+                           switch((DataType)type[0])
                            {
                                case DataType.Request:
                                    {
