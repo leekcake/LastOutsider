@@ -15,6 +15,86 @@ namespace LastOutsiderNetworkTester.Test
     {
         private static readonly byte[] needMoreTime = Encoding.UTF8.GetBytes("시간이 조금더 필요합니다");
 
+        private static T GetResultOnTask<T>(Task<T> task)
+        {
+            task.Wait();
+            return task.GetAwaiter().GetResult();
+        }
+
+        #region Encrypt
+        private class HandshakeRequestReceiver : RequestReceiver
+        {
+            private GameSocket socket;
+            public HandshakeRequestReceiver(GameSocket socket)
+            {
+                this.socket = socket;
+            }
+
+            public string Key => "handshake";
+
+            public async Task<Stream> OnRequest(byte[] requestData)
+            {
+                var result = new MemoryStream();
+
+                var stream = new MemoryStream(requestData);
+                var req = await stream.ReceiveString();
+
+                if (req == "requestRSA")
+                {
+                    socket.encryptHelper.GenerateNewRSA();
+
+                    await result.WriteAsync(socket.encryptHelper.RSAPublicKey);
+                }
+                else if (req == "responseAES")
+                {
+                    socket.encryptHelper.AESKey = socket.encryptHelper.DecryptRSA( await stream.ReceiveByteArray() );
+                    socket.encryptHelper.UseAES = true;
+                    await result.WriteAsync("OK");
+                }
+
+                return result;
+            }
+        }
+
+        private class HandshakeResponseReceiver : ResponseReceiver
+        {
+            private GameSocket socket;
+
+            public bool AESHandshaked = false;
+            public bool RSAHandshaked = false;
+
+            public HandshakeResponseReceiver(GameSocket socket)
+            {
+                this.socket = socket;
+            }
+
+            public async void OnResponse(byte[] response)
+            {
+                var stream = new MemoryStream(response);
+                var data = await stream.ReceiveString();
+
+                if(data == "OK")
+                {
+                    AESHandshaked = true;
+                    socket.encryptHelper.UseAES = true;
+                }
+                else
+                {
+                    RSAHandshaked = true;
+                    socket.encryptHelper.RSAPublicKey = data;
+                    socket.encryptHelper.GenerateRandomAESKey();
+
+                    var result = new MemoryStream();
+                    await result.WriteAsync("responseAES");
+                    await result.WriteAsync(socket.encryptHelper.EncryptRSA(socket.encryptHelper.AESKey));
+
+                    await socket.SendRequestAsync("handshake", result.ToArray(), this);
+                }
+            }
+        }
+        #endregion
+
+        #region Data Transfer
         private class MessageReceiver : RequestReceiver
         {
             public string Key => "message";
@@ -46,8 +126,27 @@ namespace LastOutsiderNetworkTester.Test
                 ReceivedData = response;
             }
         }
+        #endregion
 
         protected override string Name => "Game Socket Test";
+
+        private void WaitForFlag(Func<bool> flag, string messageFormat)
+        {
+            int tryCount = 0;
+            bool pureFalse = true;
+            while (!flag.Invoke())
+            {
+                pureFalse = false;
+                Console.WriteLine( string.Format(messageFormat, tryCount==0 ? "" : $"{tryCount}00밀리초 남음" ) );
+                Thread.Sleep(100);
+                tryCount++;
+            }
+
+            if(pureFalse)
+            {
+                Console.WriteLine(string.Format(messageFormat, "이미 처리됨"));
+            }
+        }
 
         protected override void TestInternal()
         {
@@ -70,15 +169,22 @@ namespace LastOutsiderNetworkTester.Test
             server.SendPingAsync();
             client.SendPingAsync();
 
-            int tryCount = 0;
-            while (server.LastPongTime == -1 || client.LastPongTime == -1)
-            {
-                Console.WriteLine($"서버와 클라이언트가 상대방의 핑을 기다리는중... {tryCount}00밀리초 지남");
-                Thread.Sleep(100);
-                tryCount++;
-            }
+            WaitForFlag( () => { return server.LastPongTime == -1; } , "서버가 클라이언트의 핑을 기다리는중... {0}");
+            WaitForFlag( () => { return client.LastPongTime == -1; } , "클라이언트가 서버의 핑을 기다리는중... {0}");
 
             Console.WriteLine("서로 핑을 주고 받았습니다!");
+
+            Console.WriteLine("암호화를 활성화 합니다");
+            server.registerRequestReceiver(new HandshakeRequestReceiver(server));
+            var handshakeResponseReceiver = new HandshakeResponseReceiver(client);
+            {
+                var result = new MemoryStream();
+                result.WriteAsync("requestRSA").Wait();
+                client.SendRequestAsync("handshake", result.ToArray(), handshakeResponseReceiver);
+            }
+
+            WaitForFlag(() => { return handshakeResponseReceiver.RSAHandshaked; }, "클라이언트가 서버의 RSA 공개키를 기다리는중... {0}");
+            WaitForFlag(() => { return handshakeResponseReceiver.AESHandshaked; }, "클라이언트가 서버의 AES키 수신확인 신호를 기다리는중... {0}");
 
             var random = new Random();
 
@@ -94,13 +200,8 @@ namespace LastOutsiderNetworkTester.Test
 
             client.SendRequestAsync("dev", new byte[] { 0x0 }, devFlag);
 
-            tryCount = 0;
-            while (!messageFlag.IsReceived || !devFlag.IsReceived)
-            {
-                Console.WriteLine($"클라이언트가 요청 2개의 응답을 기다리는중 {tryCount}00밀리초 지남");
-                Thread.Sleep(100);
-                tryCount++;
-            }
+            WaitForFlag(() => { return messageFlag.IsReceived; }, "클라이언트가 랜덤 바이트 테스트의 응답을 기다리는중... {0}");
+            WaitForFlag(() => { return devFlag.IsReceived; }, "클라이언트가 고정 메시지 테스트의 응답을 기다리는중... {0}");
 
             Console.WriteLine("클라이언트가 응답을 수신함");
             Assert(messageFlag.ReceivedData, messageBuffer);
