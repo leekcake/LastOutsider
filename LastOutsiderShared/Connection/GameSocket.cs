@@ -298,6 +298,14 @@ namespace LastOutsiderShared.Connection
         {
             PacketContainer packetContainer = new PacketContainer(DataType.Request, encryptHelper);
 
+            if(stream is MemoryStream)
+            {
+                if(stream.Position == stream.Length)
+                {
+                    stream.Position = 0;
+                }
+            }
+
             var spaceInx = currentSpaceInx++;
             responseReceivers[spaceInx] = receiver;
 
@@ -317,6 +325,13 @@ namespace LastOutsiderShared.Connection
 
         public async Task SendResponseAsync(uint spaceInx, Stream stream, int length)
         {
+            if (stream is MemoryStream)
+            {
+                if (stream.Position == stream.Length)
+                {
+                    stream.Position = 0;
+                }
+            }
             PacketContainer packetContainer = new PacketContainer(DataType.Response, encryptHelper);
             await packetContainer.WriteAsync(spaceInx);
             await packetContainer.WriteAsync(stream, length);
