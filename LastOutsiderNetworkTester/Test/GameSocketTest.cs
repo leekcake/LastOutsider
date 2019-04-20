@@ -1,16 +1,21 @@
-﻿using LastOutsiderClientNetwork.Packet.Login;
+﻿using LastOutsiderClientNetwork.Packet;
+using LastOutsiderClientNetwork.Packet.Login;
 using LastOutsiderServer.Receiver;
 using LastOutsiderShared;
 using LastOutsiderShared.Connection;
+using LastOutsiderShared.Data;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TestBase;
+
+#pragma warning disable 1998,4014
 
 namespace LastOutsiderNetworkTester.Test
 {
@@ -87,6 +92,7 @@ namespace LastOutsiderNetworkTester.Test
             }
         }
 
+
         protected override void TestInternal()
         {
             var listener = new TcpListener(IPAddress.Loopback, 8039);
@@ -144,6 +150,63 @@ namespace LastOutsiderNetworkTester.Test
 
             Console.WriteLine("요청을 검증했습니다. 정상입니다.");
 
+            var authToken = new byte[128];
+            var rnd = new RNGCryptoServiceProvider();
+            rnd.GetBytes(authToken);
+
+            string failMessage = null;
+            Action throwIfFail = new Action(() =>
+            {
+                if(failMessage != null)
+                {
+                    throw new Exception(failMessage);
+                }
+            });
+
+            Account generatedAccount = null;
+            var generateAccountPacket = new GenerateAccountPacket();
+            generateAccountPacket.SendPacketAsync(client, authToken, new FinishListener<Account>((account) =>
+            {
+                generatedAccount = account;
+            }, (message) =>
+            {
+                throw new Exception(message);
+            }));
+            WaitForFlag(() => { return generatedAccount != null; }, "클라이언트가 서버의 계정 생성을 기다리는중... {0}");
+            throwIfFail();
+
+            var loginAccount = new LoginAccountPacket();
+            var badLoginPass = false;
+            //Bad Token Test
+            loginAccount.SendPacketAsync(client, generatedAccount.Id, new byte[128], new FinishListener(() =>
+            {
+                failMessage = "클라이언트가 틀린 토큰으로 로그인을 성공했습니다";
+            }, (message) => {
+                badLoginPass = true;
+            }));
+            WaitForFlag(() => { return badLoginPass; }, "클라이언트가 틀린 토큰으로 로그인 시도중... {0}");
+            throwIfFail();
+
+            var goodLoginPass = false;
+            loginAccount.SendPacketAsync(client, generatedAccount.Id, new byte[128], new FinishListener(() =>
+            {
+                goodLoginPass = true;
+            }, (message) => {
+                failMessage = message;
+            }));
+            WaitForFlag(() => { return goodLoginPass; }, "클라이언트가 정상 토큰으로 로그인 시도중... {0}");
+            throwIfFail();
+
+            var fetchDataPacket = new FetchDataPacket();
+            FetchData data = null;
+            fetchDataPacket.SendPacketAsync(client, new FinishListener<FetchData>((fetchData) =>
+            {
+                data = fetchData;
+            }, (message) =>
+            {
+                failMessage = message;
+            }));
+            WaitForFlag(() => { return data != null; }, "클라이언트가 시작에 필요한 정보를 가져오는중... {0}");
             listener.Stop();
         }
     }
