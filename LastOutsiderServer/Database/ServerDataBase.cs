@@ -2,6 +2,7 @@
 using LiteDB;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace LastOutsiderServer.Database
@@ -24,6 +25,11 @@ namespace LastOutsiderServer.Database
             accounts.Insert(account);
 
             return account;
+        }
+
+        public Account GetAccount(int id)
+        {
+            return database.GetCollection<Account>(ACCOUNT_COLLECTION).Find(x => x.Id == id).First();
         }
     }
 }

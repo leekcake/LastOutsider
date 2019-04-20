@@ -1,6 +1,7 @@
 ﻿using LastOutsiderShared.Connection;
 using LastOutsiderShared.Data;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 
@@ -12,10 +13,19 @@ namespace LastOutsiderServer.Container
 
         public static void RegisterLogin(GameSocket socket, Account account)
         {
+            foreach(KeyValuePair<GameSocket, Account> connection in Connections)
+            {
+                if(connection.Value.Id == account.Id)
+                {
+                    Connections.Remove(connection.Key);
+                    break;
+                }
+            }
             Connections[socket] = account;
+
         }
 
-        public static Account GetLogin(GameSocket socket)
+        public static Account GetLogin(GameSocket socket, bool autoException = true)
         {
             if(Connections.ContainsKey(socket))
             {
@@ -23,6 +33,10 @@ namespace LastOutsiderServer.Container
             }
             else
             {
+                if(autoException)
+                {
+                    throw new Exception("세션이 만료되었습니다");
+                }
                 return null;
             }
         }
