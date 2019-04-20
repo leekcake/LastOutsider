@@ -11,18 +11,13 @@ namespace LastOutsiderClientNetwork.Packet.Login
 {
     public class HandshakePacket : BasePacket
     {
-        private class HandshakeReceiver : ResponseReceiver
+        private class HandshakeReceiver : ClientResponseReceiver
         {
-            private GameSocket socket;
-            private FinishListener finishListener;
-
-            public HandshakeReceiver(GameSocket socket, FinishListener finishAction)
+            public HandshakeReceiver(GameSocket socket, FinishListener finishAction) : base(socket, finishAction)
             {
-                this.socket = socket;
-                this.finishListener = finishAction;
             }
 
-            public async void OnResponse(byte[] response)
+            public override async void OnResponse(byte[] response)
             {
                 try
                 {
@@ -53,7 +48,7 @@ namespace LastOutsiderClientNetwork.Packet.Login
                 }
             }
 
-            public void OnResponseError(string message)
+            public override void OnResponseError(string message)
             {
                 finishListener?.OnError?.Invoke(message);
             }
