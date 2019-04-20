@@ -25,7 +25,7 @@ namespace LastOutsiderShared.Connection
         public PacketContainer(GameSocket.DataType type, EncryptHelper helper)
         {
             pending.Write(GameSocket.HEADER, 0, GameSocket.HEADER.Length);
-            pending.Write(new byte[] { (byte)type, helper.UseAES ? (byte) 1 : (byte) 0 }, 0, 2);
+            pending.Write(new byte[] { (byte)type, helper.UseAES ? (byte) 1 : (byte) 0, 0 }, 0, 3);
             encryptHelper = helper;
         }
         
