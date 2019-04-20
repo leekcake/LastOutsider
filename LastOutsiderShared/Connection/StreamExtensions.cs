@@ -28,10 +28,10 @@ namespace LastOutsiderShared.Connection
 
         public static async Task WriteAsync(this Stream stream, string str)
         {
-            await WriteAsync(stream, Encoding.UTF8.GetBytes(str));
+            await WriteByteArrayAsync(stream, Encoding.UTF8.GetBytes(str));
         }
 
-        public static async Task WriteAsync(this Stream stream, byte[] data)
+        public static async Task WriteByteArrayAsync(this Stream stream, byte[] data)
         {
             await WriteAsync(stream, new MemoryStream(data), data.Length);
         }

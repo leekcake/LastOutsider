@@ -18,9 +18,8 @@ namespace LastOutsiderShared.Connection
 	    if(DATA TYPE != PING) {
             ENCRYPTED? - 1 BYTE
             COMPRESSED? - 1 BYTE
-		    SPACE INX - 4 BYTE
-		    DATA LENGTH - 4 BYTE
-		    DATA CONTENT - (DATA LENGTH) BYTE
+            DATA LENGTH - 4 BYTE
+            DATA CONTENT - (DATA LENGTH) BYTE
 	    }
     }
     */
@@ -116,7 +115,7 @@ namespace LastOutsiderShared.Connection
                    try
                    {
                        byte[] headerBuffer = new byte[2];
-                       START:
+                   START:
                        while (true)
                        {
                            Stream stream = owner.networkStream;
@@ -151,23 +150,20 @@ namespace LastOutsiderShared.Connection
                            var encrypted = (await stream.Receive(1))[0] == 1;
                            var compressed = (await stream.Receive(1))[0] == 1;
 
-                           if(encrypted || compressed)
+                           byte[] rawData = await stream.ReceiveByteArray();
+                           if (compressed)
                            {
-                               byte[] data = await stream.ReceiveByteArray();
-                               if(compressed)
-                               {
-                                   data = Decompress(data);
-                               }
-
-                               if(encrypted)
-                               {
-                                   data = owner.encryptHelper.DecryptAES(data, 0, data.Length);
-                               }
-
-                               stream = new MemoryStream(data);
+                               rawData = Decompress(rawData);
                            }
 
-                           switch((DataType)type[0])
+                           if (encrypted)
+                           {
+                               rawData = owner.encryptHelper.DecryptAES(rawData, 0, rawData.Length);
+                           }
+
+                           stream = new MemoryStream(rawData);
+
+                           switch ((DataType)type[0])
                            {
                                case DataType.Request:
                                    {
@@ -191,8 +187,8 @@ namespace LastOutsiderShared.Connection
                                    break;
                                case DataType.Response:
                                    {
-                                       var spaceInx = await owner.networkStream.ReceiveUInt();
-                                       var data = await owner.networkStream.ReceiveByteArray();
+                                       var spaceInx = await stream.ReceiveUInt();
+                                       var data = await stream.ReceiveByteArray();
                                        new Task(() =>
                                        {
                                            owner.responseReceivers[spaceInx].OnResponse(data);
@@ -214,6 +210,8 @@ namespace LastOutsiderShared.Connection
             private CancellationTokenSource readTaskCancellationToken = new CancellationTokenSource();
 
         }
+
+        private SemaphoreSlim writeSemaphoreSlim = new SemaphoreSlim(1);
 
         public readonly EncryptHelper encryptHelper = new EncryptHelper();
         private NetworkStream networkStream;
@@ -241,12 +239,16 @@ namespace LastOutsiderShared.Connection
 
         public async Task SendPingAsync()
         {
+            writeSemaphoreSlim.Wait();
             await networkStream.WriteAsync(PING_DATA, 0, PING_DATA.Length);
+            writeSemaphoreSlim.Release();
         }
 
         public async Task SendPongAsync()
         {
+            writeSemaphoreSlim.Wait();
             await networkStream.WriteAsync(PONG_DATA, 0, PONG_DATA.Length);
+            writeSemaphoreSlim.Release();
         }
 
         public Task SendRequestAsync(string key, byte[] data, ResponseReceiver receiver)
@@ -265,7 +267,9 @@ namespace LastOutsiderShared.Connection
             await packetContainer.WriteAsync(key);
             await packetContainer.WriteAsync(stream, length);
 
+            writeSemaphoreSlim.Wait();
             await packetContainer.Flush(networkStream);
+            writeSemaphoreSlim.Release();
         }
 
         public Task SendResponseAsync(uint spaceInx, byte[] data)
@@ -279,7 +283,9 @@ namespace LastOutsiderShared.Connection
             await packetContainer.WriteAsync(spaceInx);
             await packetContainer.WriteAsync(stream, length);
 
+            writeSemaphoreSlim.Wait();
             await packetContainer.Flush(networkStream);
+            writeSemaphoreSlim.Release();
         }
     }
 }

@@ -88,7 +88,7 @@ namespace LastOutsiderNetworkTester.Test
 
                         var result = new MemoryStream();
                         await result.WriteAsync("responseAES");
-                        await result.WriteAsync(socket.encryptHelper.EncryptRSA(socket.encryptHelper.AESKey));
+                        await result.WriteByteArrayAsync(socket.encryptHelper.EncryptRSA(socket.encryptHelper.AESKey));
 
                         await socket.SendRequestAsync("handshake", result.ToArray(), this);
                     }
