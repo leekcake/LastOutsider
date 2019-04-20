@@ -33,7 +33,7 @@ namespace LastOutsiderShared.Connection
 
         public static async Task WriteAsync(this Stream stream, byte[] data)
         {
-            await WriteAsync(new MemoryStream(data), data.Length);
+            await WriteAsync(stream, new MemoryStream(data), data.Length);
         }
 
         public static async Task WriteAsync(this Stream dest, Stream source, int length)
