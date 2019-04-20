@@ -29,9 +29,13 @@ namespace LastOutsiderClientNetwork.Packet.Login
             }
         }
 
-        public async Task SendPacketAsync(GameSocket socket, byte[] authToken, FinishListener finishAction)
+        public async Task SendPacketAsync(GameSocket socket, int id, byte[] authToken, FinishListener finishAction)
         {
-            await socket.SendRequestAsync(Key, authToken, new LoginAccountReceiver(socket, finishAction));
+            var message = new MemoryStream();
+            await message.WriteAsync(id);
+            await message.WriteByteArrayAsync(authToken);
+
+            await socket.SendRequestAsync(Key, message, (int) message.Length, new LoginAccountReceiver(socket, finishAction));
         }
     }
 }
