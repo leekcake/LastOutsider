@@ -215,7 +215,7 @@ namespace LastOutsiderShared.Connection
 
         }
 
-        private EncryptHelper encryptHelper = new EncryptHelper();
+        public readonly EncryptHelper encryptHelper = new EncryptHelper();
         private NetworkStream networkStream;
 
         private uint currentSpaceInx = 0;
