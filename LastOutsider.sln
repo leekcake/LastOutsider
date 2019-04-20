@@ -11,9 +11,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LastOutsiderShared", "LastO
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "LastOutsiderClient\Assembly-CSharp.csproj", "{7647A9D1-D2CE-A3F3-E8BF-ED9DF2F52582}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LastOutsiderNetworkTester", "LastOutsiderNetworkTester\LastOutsiderNetworkTester.csproj", "{305698D8-E231-49CC-ADCB-4298BF43071C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LastOutsiderNetworkTester", "LastOutsiderNetworkTester\LastOutsiderNetworkTester.csproj", "{305698D8-E231-49CC-ADCB-4298BF43071C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestBase", "TestBase\TestBase.csproj", "{0D841710-CD05-4F49-A6F8-E0FE55BC6078}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestBase", "TestBase\TestBase.csproj", "{0D841710-CD05-4F49-A6F8-E0FE55BC6078}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LastOutsiderClientNetwork", "LastOutsiderClientNetwork\LastOutsiderClientNetwork.csproj", "{533B0793-9046-4B4A-92CF-078CF984FC52}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{0D841710-CD05-4F49-A6F8-E0FE55BC6078}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D841710-CD05-4F49-A6F8-E0FE55BC6078}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0D841710-CD05-4F49-A6F8-E0FE55BC6078}.Release|Any CPU.Build.0 = Release|Any CPU
+		{533B0793-9046-4B4A-92CF-078CF984FC52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{533B0793-9046-4B4A-92CF-078CF984FC52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{533B0793-9046-4B4A-92CF-078CF984FC52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{533B0793-9046-4B4A-92CF-078CF984FC52}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

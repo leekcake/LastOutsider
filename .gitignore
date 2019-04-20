@@ -75,3 +75,6 @@ LastOutsiderNetworkTester/obj/
 TestBase/obj/
 LastOutsiderNetworkTester/bin/
 TestBase/bin/
+LastOutsiderClientNetwork/obj/
+LastOutsiderClientNetwork/bin/
+LastOutsiderClient/Assets/LastOutsiderClientNetwork.dll
