@@ -31,14 +31,14 @@ namespace LastOutsiderShared.Connection
             await WriteAsync(stream, Encoding.UTF8.GetBytes(str));
         }
 
-        public static Task WriteAsync(this Stream stream, byte[] data)
+        public static async Task WriteAsync(this Stream stream, byte[] data)
         {
-            return WriteAsync(new MemoryStream(data), data.Length);
+            await WriteAsync(new MemoryStream(data), data.Length);
         }
 
         public static async Task WriteAsync(this Stream dest, Stream source, int length)
         {
-            WriteAsync(dest, length);
+            await WriteAsync(dest, length);
             byte[] buffer = new byte[32768];
             int read, left = length;
             while (left > 0 &&

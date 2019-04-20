@@ -29,34 +29,34 @@ namespace LastOutsiderShared.Connection
             encryptHelper = helper;
         }
         
-        public Task WriteAsync(int i)
+        public async Task WriteAsync(int i)
         {
-            return pending.WriteAsync(i);
+            await pending.WriteAsync(i);
         }
 
-        public Task WriteAsync(uint i)
+        public async Task WriteAsync(uint i)
         {
-            return pending.WriteAsync(i);
+            await pending.WriteAsync(i);
         }
 
-        public Task WriteAsync(long l)
+        public async Task WriteAsync(long l)
         {
-            return pending.WriteAsync(l);
+            await pending.WriteAsync(l);
         }
 
-        public Task WriteAsync(string str)
+        public async Task WriteAsync(string str)
         {
-            return pending.WriteAsync(str);
+            await pending.WriteAsync(str);
         }
 
-        public Task WriteAsync(byte[] data)
+        public async Task WriteAsync(byte[] data)
         {
-            return pending.WriteAsync(data);
+            await pending.WriteAsync(data);
         }
 
-        public Task WriteAsync(Stream stream, int length)
+        public async Task WriteAsync(Stream stream, int length)
         {
-            return pending.WriteAsync(stream, length);
+            await pending.WriteAsync(stream, length);
         }
 
         public async Task Flush(NetworkStream into)
