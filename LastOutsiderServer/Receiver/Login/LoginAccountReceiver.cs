@@ -33,7 +33,7 @@ namespace LastOutsiderServer.Receiver.Login
                 throw new Exception("계정 ID가 유효하지 않습니다");
             }
 
-            if(!Enumerable.SequenceEqual(token, account.authToken) )
+            if(!Enumerable.SequenceEqual(token, account.AuthToken) )
             {
                 throw new Exception("계정 ID가 유효하지 않습니다"); //아이디는 있지만 Auth 토큰이 틀렸어도 알려주지 않음
                 //TODO: 인증에 실패했지만 계속 연결을 시도하는 경우(brute force) 차단조치

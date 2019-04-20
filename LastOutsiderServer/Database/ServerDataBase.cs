@@ -18,7 +18,7 @@ namespace LastOutsiderServer.Database
             var mapper = BsonMapper.Global;
 
             mapper.Entity<Account>()
-                .Id(x => x.Id);
+                .Id(x => x.Id);                
         }
 
         private LiteDatabase database = new LiteDatabase(@"Server.db");
@@ -28,7 +28,7 @@ namespace LastOutsiderServer.Database
         public Account CreateAccount(byte[] authToken)
         {
             var account = new Account();
-            account.authToken = authToken;
+            account.AuthToken = authToken;
             var accounts = database.GetCollection<Account>(ACCOUNT_COLLECTION);
             accounts.Insert(account);
             accounts.EnsureIndex(x => x.Id);

@@ -14,6 +14,8 @@ namespace LastOutsiderShared.Data
             get; set;
         }
 
-        public byte[] authToken;
+        public byte[] AuthToken {
+            get; set;
+        }
     }
 }
