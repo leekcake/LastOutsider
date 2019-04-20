@@ -70,25 +70,32 @@ namespace LastOutsiderNetworkTester.Test
 
             public async void OnResponse(byte[] response)
             {
-                var stream = new MemoryStream(response);
-                var data = await stream.ReceiveString();
-
-                if(data == "OK")
+                try
                 {
-                    AESHandshaked = true;
-                    socket.encryptHelper.UseAES = true;
+                    var stream = new MemoryStream(response);
+                    var data = await stream.ReceiveString();
+
+                    if (data == "OK")
+                    {
+                        AESHandshaked = true;
+                        socket.encryptHelper.UseAES = true;
+                    }
+                    else
+                    {
+                        RSAHandshaked = true;
+                        socket.encryptHelper.RSAPublicKey = data;
+                        socket.encryptHelper.GenerateRandomAESKey();
+
+                        var result = new MemoryStream();
+                        await result.WriteAsync("responseAES");
+                        await result.WriteAsync(socket.encryptHelper.EncryptRSA(socket.encryptHelper.AESKey));
+
+                        await socket.SendRequestAsync("handshake", result.ToArray(), this);
+                    }
                 }
-                else
+                catch(Exception ex)
                 {
-                    RSAHandshaked = true;
-                    socket.encryptHelper.RSAPublicKey = data;
-                    socket.encryptHelper.GenerateRandomAESKey();
-
-                    var result = new MemoryStream();
-                    await result.WriteAsync("responseAES");
-                    await result.WriteAsync(socket.encryptHelper.EncryptRSA(socket.encryptHelper.AESKey));
-
-                    await socket.SendRequestAsync("handshake", result.ToArray(), this);
+                    Console.WriteLine(ex);
                 }
             }
         }
