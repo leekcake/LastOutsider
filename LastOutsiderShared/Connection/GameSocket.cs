@@ -179,7 +179,7 @@ namespace LastOutsiderShared.Connection
                                            new Task(async () =>
                                            {
                                                var receiver = owner.requestReceivers[key];
-                                               var response = receiver.OnRequest(data);
+                                               var response = await receiver.OnRequest(data);
                                                await owner.SendResponseAsync(spaceInx, response, (int)response.Length);
                                            }).Start();
                                        }

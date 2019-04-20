@@ -19,7 +19,7 @@ namespace LastOutsiderNetworkTester.Test
         {
             public string Key => "message";
 
-            public Stream OnRequest(byte[] requestData)
+            public async Task<Stream> OnRequest(byte[] requestData)
             {
                 return new MemoryStream(requestData);
             }
@@ -29,7 +29,7 @@ namespace LastOutsiderNetworkTester.Test
         {
             public string Key => "dev";
 
-            public Stream OnRequest(byte[] requestData)
+            public async Task<Stream> OnRequest(byte[] requestData)
             {
                 return new MemoryStream(needMoreTime);
             }
