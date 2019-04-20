@@ -8,4 +8,8 @@
     <Exec Command="copy /Y &quot;$(TargetDir)$(TargetName).dll&quot; &quot;$(SolutionDir)LastOutsiderClient\Assets\$(TargetName).dll&quot;" />
   </Target>
 
+  <ItemGroup>
+    <ProjectReference Include="..\LastOutsiderShared\LastOutsiderShared.csproj" />
+  </ItemGroup>
+
 </Project>

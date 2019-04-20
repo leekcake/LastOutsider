@@ -251,6 +251,14 @@ namespace LastOutsiderShared.Connection
             writeSemaphoreSlim.Release();
         }
 
+        public async Task SendRequestAsync(string key, string data, ResponseReceiver receiver)
+        {
+            MemoryStream memoryStream = new MemoryStream( Encoding.UTF8.GetByteCount(data) );
+            await memoryStream.WriteAsync(data);
+            memoryStream.Position = 0;
+            await SendRequestAsync(key, memoryStream, (int) memoryStream.Length, receiver);
+        }
+
         public Task SendRequestAsync(string key, byte[] data, ResponseReceiver receiver)
         {
             return SendRequestAsync(key, new MemoryStream(data), data.Length, receiver);

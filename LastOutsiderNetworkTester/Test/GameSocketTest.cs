@@ -1,4 +1,7 @@
-﻿using LastOutsiderShared.Connection;
+﻿using LastOutsiderClientNetwork.Packet.Login;
+using LastOutsiderServer.Receiver;
+using LastOutsiderShared;
+using LastOutsiderShared.Connection;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,86 +23,6 @@ namespace LastOutsiderNetworkTester.Test
             task.Wait();
             return task.GetAwaiter().GetResult();
         }
-
-        #region Encrypt
-        private class HandshakeRequestReceiver : RequestReceiver
-        {
-            private GameSocket socket;
-            public HandshakeRequestReceiver(GameSocket socket)
-            {
-                this.socket = socket;
-            }
-
-            public string Key => "handshake";
-
-            public async Task<Stream> OnRequest(byte[] requestData)
-            {
-                var result = new MemoryStream();
-
-                var stream = new MemoryStream(requestData);
-                var req = await stream.ReceiveString();
-
-                if (req == "requestRSA")
-                {
-                    socket.encryptHelper.GenerateNewRSA();
-
-                    await result.WriteAsync(socket.encryptHelper.RSAPublicKey);
-                }
-                else if (req == "responseAES")
-                {
-                    socket.encryptHelper.AESKey = socket.encryptHelper.DecryptRSA( await stream.ReceiveByteArray() );
-                    socket.encryptHelper.UseAES = true;
-                    await result.WriteAsync("OK");
-                }
-                result.Position = 0;
-                return result;
-            }
-        }
-
-        private class HandshakeResponseReceiver : ResponseReceiver
-        {
-            private GameSocket socket;
-
-            public bool AESHandshaked = false;
-            public bool RSAHandshaked = false;
-
-            public HandshakeResponseReceiver(GameSocket socket)
-            {
-                this.socket = socket;
-            }
-
-            public async void OnResponse(byte[] response)
-            {
-                try
-                {
-                    var stream = new MemoryStream(response);
-                    var data = await stream.ReceiveString();
-
-                    if (data == "OK")
-                    {
-                        AESHandshaked = true;
-                        socket.encryptHelper.UseAES = true;
-                    }
-                    else
-                    {
-                        RSAHandshaked = true;
-                        socket.encryptHelper.RSAPublicKey = data;
-                        socket.encryptHelper.GenerateRandomAESKey();
-
-                        var result = new MemoryStream();
-                        await result.WriteAsync("responseAES");
-                        await result.WriteByteArrayAsync(socket.encryptHelper.EncryptRSA(socket.encryptHelper.AESKey));
-
-                        await socket.SendRequestAsync("handshake", result.ToArray(), this);
-                    }
-                }
-                catch(Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-            }
-        }
-        #endregion
 
         #region Data Transfer
         private class MessageReceiver : RequestReceiver
@@ -177,6 +100,8 @@ namespace LastOutsiderNetworkTester.Test
             var client = new GameSocket();
             client.AttachNetworkStream(clientTcp.GetStream());
 
+            Receivers.RegisterReceivers(server);
+
             server.SendPingAsync();
             client.SendPingAsync();
 
@@ -186,16 +111,10 @@ namespace LastOutsiderNetworkTester.Test
             Console.WriteLine("서로 핑을 주고 받았습니다!");
 
             Console.WriteLine("암호화를 활성화 합니다");
-            server.registerRequestReceiver(new HandshakeRequestReceiver(server));
-            var handshakeResponseReceiver = new HandshakeResponseReceiver(client);
-            {
-                var result = new MemoryStream();
-                result.WriteAsync("requestRSA").Wait();
-                client.SendRequestAsync("handshake", result.ToArray(), handshakeResponseReceiver);
-            }
 
-            WaitForFlag(() => { return handshakeResponseReceiver.RSAHandshaked; }, "클라이언트가 서버의 RSA 공개키를 기다리는중... {0}");
-            WaitForFlag(() => { return handshakeResponseReceiver.AESHandshaked; }, "클라이언트가 서버의 AES키 수신확인 신호를 기다리는중... {0}");
+            var handshake = new HandshakePacket();
+            handshake.SendPacketAsync(client, null);
+            WaitForFlag(() => { return client.encryptHelper.UseAES; }, "연결의 암호화를 기다리는중...");
 
             var random = new Random();
 
