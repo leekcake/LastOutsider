@@ -13,6 +13,14 @@ namespace LastOutsiderServer.Database
             get; private set;
         } = new ServerDataBase();
 
+        public ServerDataBase()
+        {
+            var mapper = BsonMapper.Global;
+
+            mapper.Entity<Account>()
+                .Id(x => x.Id);
+        }
+
         private LiteDatabase database = new LiteDatabase(@"Server.db");
 
         private const string ACCOUNT_COLLECTION = "Accounts";
@@ -23,6 +31,7 @@ namespace LastOutsiderServer.Database
             account.authToken = authToken;
             var accounts = database.GetCollection<Account>(ACCOUNT_COLLECTION);
             accounts.Insert(account);
+            accounts.EnsureIndex(x => x.Id);
 
             return account;
         }
@@ -30,12 +39,7 @@ namespace LastOutsiderServer.Database
         public Account GetAccount(int id)
         {
             var collections = database.GetCollection<Account>(ACCOUNT_COLLECTION);
-            var find = collections.Find(x => x.Id == id);
-            if(find.Count() == 0)
-            {
-                return null;
-            }
-            return find.First();
+            return collections.FindOne(x => x.Id == id);
         }
     }
 }
