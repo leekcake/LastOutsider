@@ -170,9 +170,9 @@ namespace LastOutsiderNetworkTester.Test
                 generatedAccount = account;
             }, (message) =>
             {
-                throw new Exception(message);
+                failMessage = message;
             }));
-            WaitForFlag(() => { return generatedAccount != null; }, "클라이언트가 서버의 계정 생성을 기다리는중... {0}");
+            WaitForFlag(() => { return generatedAccount != null || failMessage != null; }, "클라이언트가 서버의 계정 생성을 기다리는중... {0}");
             throwIfFail();
 
             var loginAccount = new LoginAccountPacket();
@@ -184,7 +184,7 @@ namespace LastOutsiderNetworkTester.Test
             }, (message) => {
                 badLoginPass = true;
             }));
-            WaitForFlag(() => { return badLoginPass; }, "클라이언트가 틀린 토큰으로 로그인 시도중... {0}");
+            WaitForFlag(() => { return badLoginPass || failMessage != null; }, "클라이언트가 틀린 토큰으로 로그인 시도중... {0}");
             throwIfFail();
 
             var goodLoginPass = false;
@@ -194,7 +194,7 @@ namespace LastOutsiderNetworkTester.Test
             }, (message) => {
                 failMessage = message;
             }));
-            WaitForFlag(() => { return goodLoginPass; }, "클라이언트가 정상 토큰으로 로그인 시도중... {0}");
+            WaitForFlag(() => { return goodLoginPass || failMessage != null; }, "클라이언트가 정상 토큰으로 로그인 시도중... {0}");
             throwIfFail();
 
             var fetchDataPacket = new FetchDataPacket();
@@ -206,7 +206,7 @@ namespace LastOutsiderNetworkTester.Test
             {
                 failMessage = message;
             }));
-            WaitForFlag(() => { return data != null; }, "클라이언트가 시작에 필요한 정보를 가져오는중... {0}");
+            WaitForFlag(() => { return data != null || failMessage != null; }, "클라이언트가 시작에 필요한 정보를 가져오는중... {0}");
             listener.Stop();
         }
     }
