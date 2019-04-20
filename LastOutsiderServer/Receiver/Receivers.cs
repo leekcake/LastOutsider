@@ -11,6 +11,9 @@ namespace LastOutsiderServer.Receiver
         public static void RegisterReceivers(GameSocket socket)
         {
             socket.registerRequestReceiver(new HandshakeReceiver(socket));
+            socket.registerRequestReceiver(new LoginAccountReceiver(socket));
+            socket.registerRequestReceiver(new GenerateAccountReceiver());
+            socket.registerRequestReceiver(new FetchDataReceiver(socket));
         }
     }
 }
