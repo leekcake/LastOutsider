@@ -14,12 +14,12 @@ namespace LastOutsiderClientNetwork.Packet.Login
         private class HandshakeReceiver : ResponseReceiver
         {
             private GameSocket socket;
-            private Action finishAction;
+            private FinishListener finishListener;
 
-            public HandshakeReceiver(GameSocket socket, Action finishAction)
+            public HandshakeReceiver(GameSocket socket, FinishListener finishAction)
             {
                 this.socket = socket;
-                this.finishAction = finishAction;
+                this.finishListener = finishAction;
             }
 
             public async void OnResponse(byte[] response)
@@ -32,7 +32,7 @@ namespace LastOutsiderClientNetwork.Packet.Login
                     if (data == "OK")
                     {
                         socket.encryptHelper.UseAES = true;
-                        finishAction?.Invoke();
+                        finishListener?.OnFinish?.Invoke();
                     }
                     else
                     {
@@ -49,13 +49,19 @@ namespace LastOutsiderClientNetwork.Packet.Login
                 catch (Exception ex)
                 {
                     ExceptionUtils.OnException(ex);
+                    finishListener?.OnError?.Invoke(ex.Message);
                 }
+            }
+
+            public void OnResponseError(string message)
+            {
+                finishListener?.OnError?.Invoke(message);
             }
         }
 
         public override string Key => "handshake";
 
-        public async Task SendPacketAsync(GameSocket socket, Action finishAction)
+        public async Task SendPacketAsync(GameSocket socket, FinishListener finishAction)
         {
             await socket.SendRequestAsync(Key, "requestRSA", new HandshakeReceiver(socket, finishAction));
         }

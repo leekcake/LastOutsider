@@ -49,22 +49,6 @@ namespace LastOutsiderShared.Connection
             //TYPE
             (byte) DataType.Pong
         };
-
-        private static readonly byte[] REQUEST_HEAD = new byte[]
-        {
-            //HEADER
-            0x39, 0xbe,
-            //TYPE
-            (byte) DataType.Request
-        };
-
-        private static readonly byte[] RESPONSE_HEAD = new byte[]
-        {
-            //HEADER
-            0x39, 0xbe,
-            //TYPE
-            (byte) DataType.Response
-        };
         #endregion
 
         public enum DataType : byte
@@ -73,7 +57,8 @@ namespace LastOutsiderShared.Connection
             Pong = 1,
             Request = 2,
             Response = 3,
-            Check = 4
+            Check = 4,
+            Failed = 5
         }
 
         public class ReadTask
@@ -174,14 +159,22 @@ namespace LastOutsiderShared.Connection
                                        {
                                            new Task(async () =>
                                            {
-                                               var receiver = owner.requestReceivers[key];
-                                               var response = await receiver.OnRequest(data);
-                                               await owner.SendResponseAsync(spaceInx, response, (int)response.Length);
+                                               try
+                                               {
+                                                   var receiver = owner.requestReceivers[key];
+                                                   var response = await receiver.OnRequest(data);
+                                                   await owner.SendResponseAsync(spaceInx, response, (int)response.Length);
+                                               }
+                                               catch(Exception ex)
+                                               {
+                                                   await owner.SendFailedAsync(spaceInx, ex.Message);
+                                               }
                                            }).Start();
                                        }
                                        else
                                        {
-                                           throw new Exception($"Unable to handle unknown request {key}");
+                                           await owner.SendFailedAsync(spaceInx, $"{key} - 요청이 존재하지 않습니다");
+                                           throw new Exception();
                                        }
                                    }
                                    break;
@@ -191,9 +184,40 @@ namespace LastOutsiderShared.Connection
                                        var data = await stream.ReceiveByteArray();
                                        new Task(() =>
                                        {
-                                           owner.responseReceivers[spaceInx].OnResponse(data);
-                                           owner.responseReceivers.Remove(spaceInx);
+                                           try
+                                           {
+                                               owner.responseReceivers[spaceInx].OnResponse(data);
+                                           }
+                                           catch (Exception ex)
+                                           {
+                                               //TODO: 해결 안된 오류 알리기
+                                               Debug.WriteLine(ex.Message);
+                                           }
+                                           finally
+                                           {
+                                               owner.responseReceivers.Remove(spaceInx);
+                                           }
                                        }).Start();
+                                   }
+                                   break;
+                               case DataType.Failed:
+                                   {
+                                       var spaceInx = await stream.ReceiveUInt();
+                                       var message = await stream.ReceiveString();
+
+                                       try
+                                       {
+                                           owner.responseReceivers[spaceInx].OnResponseError(message);
+                                       }
+                                       catch (Exception ex)
+                                       {
+                                           //TODO: 해결 안된 오류 알리기
+                                           Debug.WriteLine(ex.Message);
+                                       }
+                                       finally
+                                       {
+                                           owner.responseReceivers.Remove(spaceInx);
+                                       }
                                    }
                                    break;
                            }
@@ -290,6 +314,17 @@ namespace LastOutsiderShared.Connection
             PacketContainer packetContainer = new PacketContainer(DataType.Response, encryptHelper);
             await packetContainer.WriteAsync(spaceInx);
             await packetContainer.WriteAsync(stream, length);
+
+            writeSemaphoreSlim.Wait();
+            await packetContainer.Flush(networkStream);
+            writeSemaphoreSlim.Release();
+        }
+
+        public async Task SendFailedAsync(uint spaceInx, string message)
+        {
+            PacketContainer packetContainer = new PacketContainer(DataType.Failed, encryptHelper);
+            await packetContainer.WriteAsync(spaceInx);
+            await packetContainer.WriteAsync(message);
 
             writeSemaphoreSlim.Wait();
             await packetContainer.Flush(networkStream);

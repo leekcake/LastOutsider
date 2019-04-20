@@ -7,5 +7,7 @@ namespace LastOutsiderShared.Connection
     public interface ResponseReceiver
     {
         void OnResponse(byte[] response);
+
+        void OnResponseError(string message);
     }
 }

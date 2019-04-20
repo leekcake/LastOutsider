@@ -94,6 +94,11 @@ namespace LastOutsiderNetworkTester.Test
                 Responsed = true;
                 ResponsedEvent.Set();
             }
+
+            public void OnResponseError(string message)
+            {
+                throw new Exception(message);
+            }
         }
 
         private class TestLauncher

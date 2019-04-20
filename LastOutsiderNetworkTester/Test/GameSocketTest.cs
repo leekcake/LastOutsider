@@ -55,6 +55,11 @@ namespace LastOutsiderNetworkTester.Test
                 IsReceived = true;
                 ReceivedData = response;
             }
+
+            public void OnResponseError(string message)
+            {
+                throw new Exception(message);
+            }
         }
         #endregion
 
