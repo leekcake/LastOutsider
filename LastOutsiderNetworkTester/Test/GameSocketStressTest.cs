@@ -78,7 +78,7 @@ namespace LastOutsiderNetworkTester.Test
         {
             public string Key => "dummy";
 
-            public Stream OnRequest(byte[] requestData)
+            public async Task<Stream> OnRequest(byte[] requestData)
             {
                 return new MemoryStream(requestData);
             }
