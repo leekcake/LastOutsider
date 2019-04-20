@@ -9,7 +9,7 @@ namespace LastOutsiderServer.Container
 {
     public static class ConnectedClient
     {
-        private static Dictionary<GameSocket, Account> Connections;
+        private static Dictionary<GameSocket, Account> Connections = new Dictionary<GameSocket, Account>();
 
         public static void RegisterLogin(GameSocket socket, Account account)
         {
