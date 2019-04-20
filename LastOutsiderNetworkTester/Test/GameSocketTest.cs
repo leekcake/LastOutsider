@@ -153,6 +153,10 @@ namespace LastOutsiderNetworkTester.Test
             {
                 Console.WriteLine(string.Format(messageFormat, "이미 처리됨"));
             }
+            else
+            {
+                Console.WriteLine(string.Format(messageFormat, "처리됨"));
+            }
         }
 
         protected override void TestInternal()
