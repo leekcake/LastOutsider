@@ -51,7 +51,7 @@ namespace LastOutsiderNetworkTester.Test
                     socket.encryptHelper.UseAES = true;
                     await result.WriteAsync("OK");
                 }
-
+                result.Position = 0;
                 return result;
             }
         }
