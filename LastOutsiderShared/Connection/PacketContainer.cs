@@ -29,45 +29,34 @@ namespace LastOutsiderShared.Connection
             encryptHelper = helper;
         }
         
-        public async Task WriteAsync(int i)
+        public Task WriteAsync(int i)
         {
-            var lenByte = BitConverter.GetBytes(i);
-            await pending.WriteAsync(lenByte, 0, lenByte.Length);
+            return pending.WriteAsync(i);
         }
 
-        public async Task WriteAsync(uint i)
+        public Task WriteAsync(uint i)
         {
-            var lenByte = BitConverter.GetBytes(i);
-            await pending.WriteAsync(lenByte, 0, lenByte.Length);
+            return pending.WriteAsync(i);
         }
 
-        public async Task WriteAsync(long l)
+        public Task WriteAsync(long l)
         {
-            var lenByte = BitConverter.GetBytes(l);
-            await pending.WriteAsync(lenByte, 0, lenByte.Length);
+            return pending.WriteAsync(l);
         }
 
-        public async Task WriteAsync(string str)
+        public Task WriteAsync(string str)
         {
-            await WriteAsync(Encoding.UTF8.GetBytes(str));
+            return pending.WriteAsync(str);
         }
 
         public Task WriteAsync(byte[] data)
         {
-            return WriteAsync(new MemoryStream(data), data.Length);
+            return pending.WriteAsync(data);
         }
 
-        public async Task WriteAsync(Stream stream, int length)
+        public Task WriteAsync(Stream stream, int length)
         {
-            WriteAsync(length);
-            byte[] buffer = new byte[32768];
-            int read, left = length;
-            while (left > 0 &&
-                   (read = await stream.ReadAsync(buffer, 0, Math.Min(buffer.Length, left))) > 0)
-            {
-                await stream.WriteAsync(buffer, 0, read);
-                left -= read;
-            }
+            return pending.WriteAsync(stream, length);
         }
 
         public async Task Flush(NetworkStream into)

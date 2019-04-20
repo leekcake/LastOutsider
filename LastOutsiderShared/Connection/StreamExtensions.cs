@@ -8,6 +8,47 @@ namespace LastOutsiderShared.Connection
 {
     public static class StreamExtensions
     {
+        public static async Task WriteAsync(this Stream stream, int i)
+        {
+            var lenByte = BitConverter.GetBytes(i);
+            await stream.WriteAsync(lenByte, 0, lenByte.Length);
+        }
+
+        public static async Task WriteAsync(this Stream stream, uint i)
+        {
+            var lenByte = BitConverter.GetBytes(i);
+            await stream.WriteAsync(lenByte, 0, lenByte.Length);
+        }
+
+        public static async Task WriteAsync(this Stream stream, long l)
+        {
+            var lenByte = BitConverter.GetBytes(l);
+            await stream.WriteAsync(lenByte, 0, lenByte.Length);
+        }
+
+        public static async Task WriteAsync(this Stream stream, string str)
+        {
+            await WriteAsync(stream, Encoding.UTF8.GetBytes(str));
+        }
+
+        public static Task WriteAsync(this Stream stream, byte[] data)
+        {
+            return WriteAsync(new MemoryStream(data), data.Length);
+        }
+
+        public static async Task WriteAsync(this Stream dest, Stream source, int length)
+        {
+            WriteAsync(dest, length);
+            byte[] buffer = new byte[32768];
+            int read, left = length;
+            while (left > 0 &&
+                   (read = await source.ReadAsync(buffer, 0, Math.Min(buffer.Length, left))) > 0)
+            {
+                await dest.WriteAsync(buffer, 0, read);
+                left -= read;
+            }
+        }
+
         public static async Task Receive(this Stream stream, byte[] buffer, int off, int len)
         {
             int left = len;
