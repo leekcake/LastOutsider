@@ -1,4 +1,5 @@
 ﻿using LastOutsiderServer.Container;
+using LastOutsiderServer.Receiver.Base;
 using LastOutsiderShared;
 using LastOutsiderShared.Connection;
 using LastOutsiderShared.Data;
@@ -13,20 +14,16 @@ namespace LastOutsiderServer.Receiver.Login
     /// <summary>
     /// 게임이 시작하기 전 필요한 데이터를 전부 전달
     /// </summary>
-    public class FetchDataReceiver : RequestReceiver
+    public class FetchDataReceiver : AfterLoginRequestReceiver
     {
-        public GameSocket socket;
-        public FetchDataReceiver(GameSocket socket)
+        public FetchDataReceiver(GameSocket socket) : base(socket)
         {
-            this.socket = socket;
         }
 
-        public string Key => "Login/Fetch Data";
+        public override string Key => "Login/Fetch Data";
 
-        public async Task<Stream> OnRequest(byte[] requestData)
+        public override async Task<Stream> OnRequest(byte[] requestData)
         {
-            var account = ConnectedClient.GetLogin(socket);
-
             var fetchData = new FetchData();
 
             //TODO: Fill with real data
