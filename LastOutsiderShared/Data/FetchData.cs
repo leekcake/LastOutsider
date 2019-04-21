@@ -10,6 +10,6 @@ namespace LastOutsiderShared.Data
     /// </summary>
     public class FetchData
     {
-        //Nothing in now
+        public Resource resource;
     }
 }

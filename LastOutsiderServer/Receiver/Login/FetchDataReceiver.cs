@@ -1,4 +1,5 @@
 ﻿using LastOutsiderServer.Container;
+using LastOutsiderServer.Database;
 using LastOutsiderServer.Receiver.Base;
 using LastOutsiderShared;
 using LastOutsiderShared.Connection;
@@ -26,7 +27,7 @@ namespace LastOutsiderServer.Receiver.Login
         {
             var fetchData = new FetchData();
 
-            //TODO: Fill with real data
+            fetchData.resource = ServerDataBase.Instance.GetResource(LoginedAccount.Id);
 
             var stream = new MemoryStream();
             FormatterHolder.binaryFormatter.Serialize(stream, fetchData);
