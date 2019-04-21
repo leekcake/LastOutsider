@@ -219,7 +219,7 @@ namespace LastOutsiderNetworkTester.Test
             var resourcePacket = new GetResourceStatusPacket();
             resourcePacket.SendPacketAsync(client, new FinishListener<Resource>((resource) =>
             {
-                Console.WriteLine($"자원정보 수신함(Mo/Fo/El/Ti): ${resource.Money}/${resource.Food}/${resource.Electric}/${resource.Time}");
+                Console.WriteLine($"자원정보 수신함(Mo/Fo/El/Ti): {resource.Money}/{resource.Food}/{resource.Electric}/{resource.Time}");
             }, (message) =>
             {
                 failMessage = message;
