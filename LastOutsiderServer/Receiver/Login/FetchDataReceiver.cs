@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using MessagePack;
 
 namespace LastOutsiderServer.Receiver.Login
 {
@@ -29,10 +30,7 @@ namespace LastOutsiderServer.Receiver.Login
 
             fetchData.resource = ServerDataBase.Instance.GetResource(LoginedAccount.Id);
 
-            var stream = new MemoryStream();
-            FormatterHolder.binaryFormatter.Serialize(stream, fetchData);
-            stream.Position = 0;
-            return stream;
+            return new MemoryStream( MessagePackSerializer.Serialize<FetchData>(fetchData) );
         }
     }
 }

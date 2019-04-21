@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using MessagePack;
 
 namespace LastOutsiderClientNetwork.Packet.Login
 {
@@ -22,7 +23,7 @@ namespace LastOutsiderClientNetwork.Packet.Login
 
             public override void OnResponse(byte[] response)
             {
-                var account = (Account) FormatterHolder.binaryFormatter.Deserialize( new MemoryStream(response) );
+                var account = MessagePackSerializer.Deserialize<Account>(response);
                 finishListener.OnFinish(account);
             }
 

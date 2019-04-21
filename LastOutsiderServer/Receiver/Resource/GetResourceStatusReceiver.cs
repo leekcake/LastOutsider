@@ -6,8 +6,12 @@ using LastOutsiderShared.Connection;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
+using MessagePack;
+
+using ResourceData = LastOutsiderShared.Data.Resource;
 
 namespace LastOutsiderServer.Receiver.Resource
 {
@@ -23,10 +27,7 @@ namespace LastOutsiderServer.Receiver.Resource
         {
             var resource = ServerDataBase.Instance.GetResource(LoginedAccount.Id);
 
-            var result = new MemoryStream();
-            FormatterHolder.binaryFormatter.Serialize(result, resource);
-
-            return result;
+            return new MemoryStream( MessagePackSerializer.Serialize<ResourceData>(resource) );
         }
     }
 }

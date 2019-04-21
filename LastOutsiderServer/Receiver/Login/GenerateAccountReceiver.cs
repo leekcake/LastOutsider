@@ -7,6 +7,8 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
+using MessagePack;
+using LastOutsiderShared.Data;
 
 namespace LastOutsiderServer.Receiver.Login
 {
@@ -22,10 +24,7 @@ namespace LastOutsiderServer.Receiver.Login
             }
 
             var account = ServerDataBase.Instance.CreateAccount(requestData);
-            var result = new MemoryStream();
-            FormatterHolder.binaryFormatter.Serialize(result, account);
-            result.Position = 0;
-            return result;
+            return new MemoryStream( MessagePackSerializer.Serialize<Account>(account) );
         }
 
     }

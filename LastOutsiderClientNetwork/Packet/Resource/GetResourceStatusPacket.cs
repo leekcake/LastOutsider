@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using MessagePack;
 using ResourceData = LastOutsiderShared.Data.Resource;
 
 namespace LastOutsiderClientNetwork.Packet.Resource
@@ -22,7 +23,7 @@ namespace LastOutsiderClientNetwork.Packet.Resource
 
             public override void OnResponse(byte[] response)
             {
-                var account = (ResourceData)FormatterHolder.binaryFormatter.Deserialize(new MemoryStream(response));
+                var account = MessagePackSerializer.Deserialize<ResourceData>(response);
                 finishListener.OnFinish(account);
             }
 
