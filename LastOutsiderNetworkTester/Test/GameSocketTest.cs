@@ -129,7 +129,7 @@ namespace LastOutsiderNetworkTester.Test
 
             var handshake = new HandshakePacket();
             handshake.SendPacketAsync(client, null);
-            WaitForFlag(() => { return client.encryptHelper.UseAES; }, "연결의 암호화를 기다리는중...");
+            WaitForFlag(() => { return client.encryptHelper.UseAES; }, "연결의 암호화를 기다리는중... {0}");
 
             var random = new Random();
 
@@ -216,17 +216,22 @@ namespace LastOutsiderNetworkTester.Test
             throwIfFail();
             #endregion
 
+            #region Resource Packet
             var resourcePacket = new GetResourceStatusPacket();
+            bool resourceReceived = false;
             resourcePacket.SendPacketAsync(client, new FinishListener<Resource>((resource) =>
             {
                 Console.WriteLine($"자원정보 수신함(Mo/Fo/El/Ti): {resource.Money}/{resource.Food}/{resource.Electric}/{resource.Time}");
+                resourceReceived = true;
             }, (message) =>
             {
                 failMessage = message;
             }));
+            WaitForFlag(() => { return resourceReceived || failMessage != null; }, "자원 정보를 서버로부터 받는중... {0}");
             throwIfFail();
 
             listener.Stop();
+            #endregion
         }
     }
 }
