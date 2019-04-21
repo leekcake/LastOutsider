@@ -2,11 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
-
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy /Y &quot;$(TargetDir)$(TargetName).dll&quot; &quot;$(SolutionDir)LastOutsiderClient\Assets\$(TargetName).dll&quot;" />
-  </Target>
 
   <ItemGroup>
     <PackageReference Include="MessagePack" Version="1.7.3.4" />
@@ -15,5 +13,9 @@
   <ItemGroup>
     <ProjectReference Include="..\LastOutsiderShared\LastOutsiderShared.csproj" />
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="echo F | xcopy /S /Y &quot;$(TargetDir)$(TargetName).dll&quot; &quot;$(SolutionDir)LastOutsiderClient\Assets\GeneratedPlugin\$(TargetName).dll&quot;&#xD;&#xA;&#xD;&#xA;echo F | xcopy /S /Y &quot;$(TargetDir)MessagePack.dll&quot; &quot;$(SolutionDir)LastOutsiderClient\Assets\GeneratedPlugin\MessagePack.dll&quot;&#xD;&#xA;&#xD;&#xA;echo F | xcopy /S /Y &quot;$(TargetDir)System.Threading.Tasks.Extensions.dll&quot; &quot;$(SolutionDir)LastOutsiderClient\Assets\GeneratedPlugin\System.Threading.Tasks.Extensions.dll&quot;" />
+  </Target>
 
 </Project>

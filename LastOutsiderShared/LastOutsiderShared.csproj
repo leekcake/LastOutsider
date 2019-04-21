@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy /Y &quot;$(TargetDir)$(TargetName).dll&quot; &quot;$(SolutionDir)LastOutsiderClient\Assets\$(TargetName).dll&quot;" />
+    <Exec Command="echo F | xcopy /S /Y &quot;$(TargetDir)$(TargetName).dll&quot; &quot;$(SolutionDir)LastOutsiderClient\Assets\GeneratedPlugin\$(TargetName).dll&quot;" />
   </Target>
 
   <ItemGroup>
