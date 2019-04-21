@@ -1,5 +1,6 @@
 ﻿using LastOutsiderClientNetwork.Packet;
 using LastOutsiderClientNetwork.Packet.Login;
+using LastOutsiderClientNetwork.Packet.Resource;
 using LastOutsiderServer.Receiver;
 using LastOutsiderShared;
 using LastOutsiderShared.Connection;
@@ -95,6 +96,7 @@ namespace LastOutsiderNetworkTester.Test
 
         protected override void TestInternal()
         {
+            #region Make Connection
             var listener = new TcpListener(IPAddress.Loopback, 8039);
             listener.Start();
             var serverTask = listener.AcceptTcpClientAsync();
@@ -120,7 +122,9 @@ namespace LastOutsiderNetworkTester.Test
             WaitForFlag( () => { return client.LastPongTime == -1; } , "클라이언트가 서버의 핑을 기다리는중... {0}");
 
             Console.WriteLine("서로 핑을 주고 받았습니다!");
+            #endregion
 
+            #region Handshake
             Console.WriteLine("암호화를 활성화 합니다");
 
             var handshake = new HandshakePacket();
@@ -149,7 +153,9 @@ namespace LastOutsiderNetworkTester.Test
             Assert(devFlag.ReceivedData, needMoreTime);
 
             Console.WriteLine("요청을 검증했습니다. 정상입니다.");
+            #endregion
 
+            #region Login Packet
             var authToken = new byte[128];
             var rnd = new RNGCryptoServiceProvider();
             rnd.GetBytes(authToken);
@@ -207,6 +213,17 @@ namespace LastOutsiderNetworkTester.Test
                 failMessage = message;
             }));
             WaitForFlag(() => { return data != null || failMessage != null; }, "클라이언트가 시작에 필요한 정보를 가져오는중... {0}");
+            throwIfFail();
+            #endregion
+
+            var resourcePacket = new GetResourceStatusPacket();
+            resourcePacket.SendPacketAsync(client, new FinishListener<Resource>((resource) =>
+            {
+                Console.WriteLine($"자원정보 수신함(Mo/Fo/El/Ti): ${resource.Money}/${resource.Food}/${resource.Electric}/${resource.Time}");
+            }, (message) =>
+            {
+                failMessage = message;
+            }));
             throwIfFail();
 
             listener.Stop();
