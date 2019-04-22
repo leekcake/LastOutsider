@@ -28,6 +28,10 @@ namespace LastOutsiderShared.Connection
     /// </summary>
     public class GameSocket
     {
+        public PrintHelper printHelper {
+            get; set;
+        }
+
         #region Pre-defined Head of Packet
         public static readonly byte[] HEADER = new byte[]
         {
@@ -155,6 +159,7 @@ namespace LastOutsiderShared.Connection
                                        var spaceInx = await stream.ReceiveUInt();
                                        var key = await stream.ReceiveString();
                                        var data = await stream.ReceiveByteArray();
+                                       owner.printHelper?.Printline($"요청 수신: {spaceInx} - {key}");
                                        if (owner.requestReceivers.ContainsKey(key))
                                        {
                                            new Task(async () =>
@@ -181,6 +186,7 @@ namespace LastOutsiderShared.Connection
                                case DataType.Response:
                                    {
                                        var spaceInx = await stream.ReceiveUInt();
+                                       owner.printHelper?.Printline($"응답 수신: {spaceInx}");
                                        var data = await stream.ReceiveByteArray();
                                        new Task(() =>
                                        {
@@ -204,6 +210,7 @@ namespace LastOutsiderShared.Connection
                                    {
                                        var spaceInx = await stream.ReceiveUInt();
                                        var message = await stream.ReceiveString();
+                                       owner.printHelper?.Printline($"오류 수신: {spaceInx} - {message}");
 
                                        try
                                        {
@@ -296,6 +303,7 @@ namespace LastOutsiderShared.Connection
 
         public async Task SendRequestAsync(string key, Stream stream, int length, ResponseReceiver receiver)
         {
+            printHelper?.Printline($"요청 전송: {currentSpaceInx} - {key}");
             PacketContainer packetContainer = new PacketContainer(DataType.Request, encryptHelper);
 
             if(stream is MemoryStream)
@@ -332,6 +340,7 @@ namespace LastOutsiderShared.Connection
                     stream.Position = 0;
                 }
             }
+            printHelper?.Printline($"응답 전송: {spaceInx}");
             PacketContainer packetContainer = new PacketContainer(DataType.Response, encryptHelper);
             await packetContainer.WriteAsync(spaceInx);
             await packetContainer.WriteAsync(stream, length);
@@ -343,6 +352,7 @@ namespace LastOutsiderShared.Connection
 
         public async Task SendFailedAsync(uint spaceInx, string message)
         {
+            printHelper?.Printline($"실패 정보 전송: {spaceInx} - {message}");
             PacketContainer packetContainer = new PacketContainer(DataType.Failed, encryptHelper);
             await packetContainer.WriteAsync(spaceInx);
             await packetContainer.WriteAsync(message);

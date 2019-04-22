@@ -1,4 +1,5 @@
 ﻿using LastOutsiderServer.Receiver;
+using LastOutsiderShared;
 using LastOutsiderShared.Connection;
 using System;
 using System.Net;
@@ -10,8 +11,18 @@ namespace LastOutsiderServer
 {
     class Program
     {
+        private class Printer : PrintHelper
+        {
+            public void Printline(string line)
+            {
+                Console.WriteLine(line);
+            }
+        }
+
         static void Main(string[] args)
         {
+            var print = new Printer();
+
             var listener = new TcpListener(IPAddress.Any, 8039);
             listener.Start();
             new Task(async () =>
@@ -20,6 +31,7 @@ namespace LastOutsiderServer
                 {
                     var serverClient = await listener.AcceptTcpClientAsync();
                     var socket = new GameSocket();
+                    socket.printHelper = print;
                     Receivers.RegisterReceivers(socket);
                     socket.AttachNetworkStream(serverClient.GetStream());
                 }
