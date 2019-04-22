@@ -3,6 +3,7 @@ using LastOutsiderShared.Connection;
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace LastOutsiderServer
@@ -24,6 +25,12 @@ namespace LastOutsiderServer
                 }
             }).Start();
 
+            while(true)
+            {
+                //코더님, 역활이 없는 메인 스레드는 뭘 할수 있죠?
+                //너는 쓸모가 없다, 팝콘이나 가져와라 메인 스레드
+                Thread.Sleep(int.MaxValue);
+            }
         }
     }
 }
