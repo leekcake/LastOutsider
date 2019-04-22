@@ -1,4 +1,5 @@
-﻿using LastOutsiderServer.Receiver;
+﻿using LastOutsiderServer.Container;
+using LastOutsiderServer.Receiver;
 using LastOutsiderShared;
 using LastOutsiderShared.Connection;
 using System;
@@ -38,7 +39,18 @@ namespace LastOutsiderServer
                     var socket = new GameSocket();
                     socket.printHelper = print;
                     Receivers.RegisterReceivers(socket);
-                    socket.AttachNetworkStream(serverClient.GetStream());
+                    socket.AttachNetworkStream(serverClient.GetStream(), () =>
+                    {
+                        try
+                        {
+                            ConnectedClient.UnregisterLogin(socket);
+                            serverClient.Close();
+                        }
+                        catch
+                        {
+
+                        }
+                    });
                 }
             }).Start();
 
