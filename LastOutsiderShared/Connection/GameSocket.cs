@@ -271,16 +271,28 @@ namespace LastOutsiderShared.Connection
 
         public async Task SendPingAsync()
         {
-            writeSemaphoreSlim.Wait();
-            await networkStream.WriteAsync(PING_DATA, 0, PING_DATA.Length);
-            writeSemaphoreSlim.Release();
+            await writeSemaphoreSlim.WaitAsync();
+            try
+            {
+                await networkStream.WriteAsync(PING_DATA, 0, PING_DATA.Length);
+            }
+            finally
+            {
+                writeSemaphoreSlim.Release();
+            }
         }
 
         public async Task SendPongAsync()
         {
-            writeSemaphoreSlim.Wait();
-            await networkStream.WriteAsync(PONG_DATA, 0, PONG_DATA.Length);
-            writeSemaphoreSlim.Release();
+            await writeSemaphoreSlim.WaitAsync();
+            try
+            {
+                await networkStream.WriteAsync(PONG_DATA, 0, PONG_DATA.Length);
+            }
+            finally
+            {
+                writeSemaphoreSlim.Release();
+            }
         }
 
         public async Task SendRequestAsync(string key, ResponseReceiver receiver)
@@ -322,9 +334,15 @@ namespace LastOutsiderShared.Connection
             await packetContainer.WriteAsync(key);
             await packetContainer.WriteAsync(stream, length);
 
-            writeSemaphoreSlim.Wait();
-            await packetContainer.Flush(networkStream);
-            writeSemaphoreSlim.Release();
+            await writeSemaphoreSlim.WaitAsync();
+            try
+            {
+                await packetContainer.Flush(networkStream); //TODO: Handle flush exception!!!
+            }
+            finally
+            {
+                writeSemaphoreSlim.Release();
+            }
         }
 
         public Task SendResponseAsync(uint spaceInx, byte[] data)
@@ -346,9 +364,15 @@ namespace LastOutsiderShared.Connection
             await packetContainer.WriteAsync(spaceInx);
             await packetContainer.WriteAsync(stream, length);
 
-            writeSemaphoreSlim.Wait();
-            await packetContainer.Flush(networkStream);
-            writeSemaphoreSlim.Release();
+            await writeSemaphoreSlim.WaitAsync();
+            try
+            {
+                await packetContainer.Flush(networkStream);
+            }
+            finally
+            {
+                writeSemaphoreSlim.Release();
+            }
         }
 
         public async Task SendFailedAsync(uint spaceInx, string message)
@@ -358,9 +382,15 @@ namespace LastOutsiderShared.Connection
             await packetContainer.WriteAsync(spaceInx);
             await packetContainer.WriteAsync(message);
 
-            writeSemaphoreSlim.Wait();
-            await packetContainer.Flush(networkStream);
-            writeSemaphoreSlim.Release();
+            await writeSemaphoreSlim.WaitAsync();
+            try
+            {
+                await packetContainer.Flush(networkStream);
+            }
+            finally
+            {
+                writeSemaphoreSlim.Release();
+            }
         }
     }
 }

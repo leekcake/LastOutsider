@@ -212,7 +212,7 @@ public partial class ConnectCanvas : MonoBehaviour
         {
             while( !IsDestroyed )
             {
-                await Task.Delay(1);
+                await Task.Delay(3);
             }
         }
 
@@ -251,7 +251,7 @@ public partial class ConnectCanvas : MonoBehaviour
         {
             while (!IsDestroyed)
             {
-                await Task.Delay(1);
+                await Task.Delay(3);
             }
             return Result;
         }

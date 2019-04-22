@@ -21,7 +21,10 @@ public class NetworkManager
     {
         public void Printline(string line)
         {
-            Debug.Log(line);
+            lock (this)
+            {
+                Debug.Log(line);
+            }
         }
     }
 
