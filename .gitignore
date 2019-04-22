@@ -79,3 +79,5 @@ LastOutsiderClientNetwork/obj/
 LastOutsiderClientNetwork/bin/
 LastOutsiderClient/Assets/LastOutsiderClientNetwork.dll
 LastOutsiderClient/Assets/GeneratedPlugin/
+LastOutsiderServerTester/bin/
+LastOutsiderServerTester/obj/
