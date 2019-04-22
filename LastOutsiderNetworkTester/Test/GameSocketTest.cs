@@ -124,6 +124,54 @@ namespace LastOutsiderNetworkTester.Test
             Console.WriteLine("서로 핑을 주고 받았습니다!");
             #endregion
 
+            #region Alive Checker - No Response at all (half-open tcp connection)
+            Console.WriteLine("Alive Checker - No Response at all (half-open tcp connection)");
+            var aliveCheckServerTask = listener.AcceptTcpClientAsync();
+            var aliveCheckClient = new TcpClient();
+            var aliveCheckClientTask = aliveCheckClient.ConnectAsync(IPAddress.Loopback, 8039);
+
+            Task.WaitAll(aliveCheckClientTask, aliveCheckServerTask);
+
+            var isClosed = false;
+            var aliveCheckServerSocket = new GameSocket();
+            aliveCheckServerSocket.AttachNetworkStream(aliveCheckServerTask.GetAwaiter().GetResult().GetStream(), () =>
+            {
+                isClosed = true;
+            });
+            aliveCheckServerSocket.LastTransferTime = DateTimeOffset.Now.ToUnixTimeMilliseconds() - 30000;
+
+            Thread.Sleep(2000);
+            aliveCheckServerSocket.LastTransferTime = DateTimeOffset.Now.ToUnixTimeMilliseconds() - 60000;
+            Thread.Sleep(2000);
+            Assert(isClosed, true);
+            aliveCheckClient.Close();
+
+            Console.WriteLine("Alive Checker - No Response at all (half-open tcp connection) is PASS");
+            #endregion
+
+            #region Alive Checker - Client Closed Connection
+            Console.WriteLine("Alive Checker - Client Closed Connection");
+            aliveCheckServerTask = listener.AcceptTcpClientAsync();
+            aliveCheckClient = new TcpClient();
+            aliveCheckClientTask = aliveCheckClient.ConnectAsync(IPAddress.Loopback, 8039);
+
+            Task.WaitAll(aliveCheckClientTask, aliveCheckServerTask);
+
+            isClosed = false;
+            aliveCheckServerSocket = new GameSocket();
+            aliveCheckServerSocket.AttachNetworkStream(aliveCheckServerTask.GetAwaiter().GetResult().GetStream(), () =>
+            {
+                isClosed = true;
+            });
+            aliveCheckClient.Close();
+            aliveCheckServerSocket.LastTransferTime = DateTimeOffset.Now.ToUnixTimeMilliseconds() - 30000;
+            Thread.Sleep(2000);
+            aliveCheckServerSocket.LastTransferTime = DateTimeOffset.Now.ToUnixTimeMilliseconds() - 60000;
+            Thread.Sleep(2000);
+            Assert(isClosed, true);
+            Console.WriteLine("Alive Checker - Client Closed Connection is PASS");
+            #endregion
+
             #region Handshake
             Console.WriteLine("암호화를 활성화 합니다");
 
