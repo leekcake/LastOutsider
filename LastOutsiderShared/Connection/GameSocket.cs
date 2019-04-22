@@ -106,7 +106,7 @@ namespace LastOutsiderShared.Connection
                     while (owner.networkStream.CanRead)
                     {
                         await Task.Delay(1000);
-                        if (owner.LastTransferTime > DateTimeOffset.Now.ToUnixTimeMilliseconds() - 30000)
+                        if (owner.LastReceiveTime + 30000 < DateTimeOffset.Now.ToUnixTimeMilliseconds() && !pingFlag)
                         {
                             try
                             {
@@ -121,7 +121,7 @@ namespace LastOutsiderShared.Connection
                             continue;
                         }
 
-                        if (owner.LastTransferTime > DateTimeOffset.Now.ToUnixTimeMilliseconds() - 60000)
+                        if (owner.LastReceiveTime + 60000 < DateTimeOffset.Now.ToUnixTimeMilliseconds())
                         {
                             owner.Close();
                             break;
@@ -143,7 +143,7 @@ namespace LastOutsiderShared.Connection
 
                            var header = await stream.Receive(HEADER.Length);
 
-                           owner.LastTransferTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+                           owner.LastReceiveTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
                            readTaskCancellationToken.Token.ThrowIfCancellationRequested();
                            if (!Enumerable.SequenceEqual(header, HEADER))
@@ -302,7 +302,7 @@ namespace LastOutsiderShared.Connection
 
         public long LastPongTime = -1;
 
-        public long LastTransferTime = -1;
+        public long LastReceiveTime = -1;
 
         private Dictionary<string, RequestReceiver> requestReceivers = new Dictionary<string, RequestReceiver>();
         public void registerRequestReceiver(RequestReceiver receiver)
@@ -316,7 +316,7 @@ namespace LastOutsiderShared.Connection
         {
             networkStream = stream;
             this.closeReceiver = closeReceiver;
-            LastTransferTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            LastReceiveTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
             readTask?.Stop();
             readTask = new ReadTask(this);
@@ -325,6 +325,11 @@ namespace LastOutsiderShared.Connection
 
         public void Close()
         {
+            if(networkStream == null)
+            {
+                //Already closed / Never connected
+                return;
+            }
             printHelper?.Printline("연결 닫힘 :(");
             try
             {

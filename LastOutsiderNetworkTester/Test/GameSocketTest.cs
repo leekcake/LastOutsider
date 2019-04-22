@@ -22,6 +22,18 @@ namespace LastOutsiderNetworkTester.Test
 {
     public class GameSocketTest : BaseTest
     {
+        private class Printer : PrintHelper
+        {
+
+            public void Printline(string line)
+            {
+                lock (this)
+                {
+                    Console.WriteLine(line);
+                }
+            }
+        }
+
         private static readonly byte[] needMoreTime = Encoding.UTF8.GetBytes("시간이 조금더 필요합니다");
 
         private static T GetResultOnTask<T>(Task<T> task)
@@ -96,6 +108,8 @@ namespace LastOutsiderNetworkTester.Test
 
         protected override void TestInternal()
         {
+            var printer = new Printer();
+
             #region Make Connection
             var listener = new TcpListener(IPAddress.Loopback, 8039);
             listener.Start();
@@ -134,14 +148,15 @@ namespace LastOutsiderNetworkTester.Test
 
             var isClosed = false;
             var aliveCheckServerSocket = new GameSocket();
+            aliveCheckServerSocket.printHelper = printer;
             aliveCheckServerSocket.AttachNetworkStream(aliveCheckServerTask.GetAwaiter().GetResult().GetStream(), () =>
             {
                 isClosed = true;
             });
-            aliveCheckServerSocket.LastTransferTime = DateTimeOffset.Now.ToUnixTimeMilliseconds() - 30000;
+            aliveCheckServerSocket.LastReceiveTime = DateTimeOffset.Now.ToUnixTimeMilliseconds() - 30000;
 
             Thread.Sleep(2000);
-            aliveCheckServerSocket.LastTransferTime = DateTimeOffset.Now.ToUnixTimeMilliseconds() - 60000;
+            aliveCheckServerSocket.LastReceiveTime = DateTimeOffset.Now.ToUnixTimeMilliseconds() - 60000;
             Thread.Sleep(2000);
             Assert(isClosed, true);
             aliveCheckClient.Close();
@@ -159,14 +174,15 @@ namespace LastOutsiderNetworkTester.Test
 
             isClosed = false;
             aliveCheckServerSocket = new GameSocket();
+            aliveCheckServerSocket.printHelper = printer;
             aliveCheckServerSocket.AttachNetworkStream(aliveCheckServerTask.GetAwaiter().GetResult().GetStream(), () =>
             {
                 isClosed = true;
             });
             aliveCheckClient.Close();
-            aliveCheckServerSocket.LastTransferTime = DateTimeOffset.Now.ToUnixTimeMilliseconds() - 30000;
+            aliveCheckServerSocket.LastReceiveTime = DateTimeOffset.Now.ToUnixTimeMilliseconds() - 30000;
             Thread.Sleep(2000);
-            aliveCheckServerSocket.LastTransferTime = DateTimeOffset.Now.ToUnixTimeMilliseconds() - 60000;
+            aliveCheckServerSocket.LastReceiveTime = DateTimeOffset.Now.ToUnixTimeMilliseconds() - 60000;
             Thread.Sleep(2000);
             Assert(isClosed, true);
             Console.WriteLine("Alive Checker - Client Closed Connection is PASS");
