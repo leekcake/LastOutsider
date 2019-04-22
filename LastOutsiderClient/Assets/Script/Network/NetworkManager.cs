@@ -44,7 +44,7 @@ public class NetworkManager
         if (gameSocket == null && createIfMissing)
         {
             tcpClient = new TcpClient();
-            GameSocket gameSocket = null;
+            GameSocket gameSocket = new GameSocket();
             var handshakeCI = ConnectCanvas.Instance.CreateConnectInformation("서버에 연결", async (listener) =>
             {
                 try
