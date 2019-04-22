@@ -9,6 +9,8 @@ using LastOutsiderClientNetwork.Packet.Extension.Login;
 using System.Security.Cryptography;
 using LastOutsiderClientNetwork.Packet;
 using LastOutsiderShared;
+using System;
+using UnityEngine.SceneManagement;
 
 public class PanelTitle : MonoBehaviour
 {
@@ -25,8 +27,6 @@ public class PanelTitle : MonoBehaviour
         {
             beforeLogin.SetActive(true);
         }
-
-        NetworkManager.Instance.GetGameSocketAsync(loginIfMissing: false);
     }
 
     private bool TouchProgress = false;
@@ -45,9 +45,9 @@ public class PanelTitle : MonoBehaviour
         TouchProgress = true;
 
         var account = Consts.GetAccountFromFile();
-        if(account == null)
+        var socket = await NetworkManager.Instance.GetGameSocketAsync(loginIfMissing: false);
+        if (account == null)
         {
-            var socket = await NetworkManager.Instance.GetGameSocketAsync(loginIfMissing: false);
             var authToken = new byte[128];
             var rnd = new RNGCryptoServiceProvider();
             rnd.GetBytes(authToken);
@@ -66,7 +66,25 @@ public class PanelTitle : MonoBehaviour
         }
         else
         {
-            //TODO: Login
+            await ConnectCanvas.Instance.CreateConnectInformation("로그인", (listener) =>
+            {
+                if (account == null)
+                {
+                    throw new Exception("계정이 없음");
+                }
+                socket.LoginAccountAsync(account.Id, account.AuthToken, listener);
+            }, null)
+            .StartAfter(ConnectCanvas.Instance.CreateConnectInformation("시작 데이터 가져오는중", (listener) =>
+            {
+                socket.FetchDataAsync(listener);
+            }, new FinishListener<FetchData>((data) =>
+            {
+                DataManager.Instance.ReadFetchData(data);
+            }, (message) => { })
+            )).WaitAsync();
+
+            //SceneManager.LoadSceneAsync("MainScene");
         }
+        TouchProgress = false;
     }
 }

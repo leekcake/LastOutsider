@@ -18,8 +18,10 @@ public class DataManager
         }
     }
 
+    public Resource Resource;
+
     public void ReadFetchData(FetchData fetchData)
     {
-        //TODO: Read data
+        Resource = fetchData.resource;
     }
 }

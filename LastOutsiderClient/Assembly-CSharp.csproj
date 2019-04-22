@@ -65,6 +65,7 @@
     <Compile Include="Assets\Script\Misc\AnimationSwitcher.cs" />
     <Compile Include="Assets\Script\Misc\LoadingCircle.cs" />
     <Compile Include="Assets\Script\Network\NetworkManager.cs" />
+    <Compile Include="Assets\Script\SceneSupport\Main\ResourcePanel.cs" />
     <Compile Include="Assets\Script\SceneSupport\Title\PanelTitle.cs" />
     <Compile Include="Assets\Script\UISupport\ConnectCanvas.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">

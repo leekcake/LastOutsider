@@ -90,7 +90,7 @@ public class NetworkManager
             if (loginIfMissing)
             {
                 var account = Consts.GetAccountFromFile();
-                handshakeCI.StartAfter(ConnectCanvas.Instance.CreateConnectInformation("로그인", (listener) =>
+                await handshakeCI.StartAfter(ConnectCanvas.Instance.CreateConnectInformation("로그인", (listener) =>
                 {
                     if (account == null)
                     {
@@ -98,7 +98,7 @@ public class NetworkManager
                     }
                     gameSocket.LoginAccountAsync(account.Id, account.AuthToken, listener);
                 }, null, autoStart: false))
-                .StartAfter(ConnectCanvas.Instance.CreateConnectInformation("시작 데이터 가져오는중", (listener) =>
+                .StartAfter(ConnectCanvas.Instance.CreateConnectInformation("데이터를 다시 가져오는중", (listener) =>
                 {
                     gameSocket.FetchDataAsync(listener);
                 }, new FinishListener<FetchData>((data) =>
@@ -106,8 +106,11 @@ public class NetworkManager
                     DataManager.Instance.ReadFetchData(data);
                     SocketInCreate = false;
                 }, (message) => { })
-                ));
-
+                )).WaitAsync();
+            }
+            else
+            {
+                await handshakeCI.WaitAsync();
             }
         }
         return gameSocket;
