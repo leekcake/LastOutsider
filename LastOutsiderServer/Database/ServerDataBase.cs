@@ -28,7 +28,7 @@ namespace LastOutsiderServer.Database
             Directory.CreateDirectory("Accounts");
         }
 
-        private LiteDatabase database = new LiteDatabase(@"Server.db");
+        private LiteDatabase database = new LiteDatabase(@"filename=Server.db;utc=true;");
 
         private const string ACCOUNT_COLLECTION = "Accounts";
         private const string RESOURCE_COLLECTION = "Resources";
@@ -68,16 +68,28 @@ namespace LastOutsiderServer.Database
             
             var resource = collections.FindOne(x => x.UserId == id);
             //TODO: 더 나은 자연회복 처리시점
-            while ( resource.NextRecoverTime < DateTime.UtcNow )
+            bool updated = false;
+            int compare;
+            while ( ( compare = DateTime.Compare(DateTime.UtcNow, resource.NextRecoverTime) ) > 0 )
             {
                 resource.Money += resource.MoneyRecoveryAmount;
                 resource.Food += resource.FoodRecoveryAmount;
                 resource.Electric += resource.ElectricRecoveryAmount;
                 resource.Time += resource.TimeRecoveryAmount;
-                resource.NextRecoverTime.AddMinutes(3);
+                resource.NextRecoverTime = resource.NextRecoverTime.AddMinutes(3);
+                updated = true;
             }
-
+            if (updated)
+            {
+                UpdateResource(resource);
+            }
             return resource;
+        }
+
+        public void UpdateResource(ResourceInServer resource)
+        {
+            var collections = database.GetCollection<ResourceInServer>(RESOURCE_COLLECTION);
+            collections.Update(resource);
         }
     }
 }
