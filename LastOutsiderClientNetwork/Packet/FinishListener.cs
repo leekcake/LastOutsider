@@ -85,12 +85,14 @@ namespace LastOutsiderClientNetwork.Packet
         public FinishListener(Action<string> onError)
         {
             this.onError = onError;
+            GenerateProxy();
         }
 
         public FinishListener(Action<T> onFinish, Action<string> onError)
         {
             this.onFinish = onFinish;
             this.onError = onError;
+            GenerateProxy();
         }
 
         public async Task<T> WaitAsync()
