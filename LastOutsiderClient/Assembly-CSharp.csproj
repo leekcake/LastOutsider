@@ -60,8 +60,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Script\Consts.cs" />
+    <Compile Include="Assets\Script\DataManager.cs" />
     <Compile Include="Assets\Script\Misc\AnimationSwitcher.cs" />
-    <Compile Include="Assets\Script\SceneSupport\Title\AccountChecker.cs" />
+    <Compile Include="Assets\Script\Misc\LoadingCircle.cs" />
+    <Compile Include="Assets\Script\Network\NetworkManager.cs" />
+    <Compile Include="Assets\Script\SceneSupport\Title\PanelTitle.cs" />
+    <Compile Include="Assets\Script\UISupport\ConnectCanvas.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>D:/Project/leekHouse/LastOutsider/LastOutsiderClient/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
@@ -278,6 +283,18 @@
     <Reference Include="UnityEngine.SpatialTracking">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2018.3.12f1/Editor/Data/UnityExtensions/Unity/UnitySpatialTracking/RuntimeEditor/UnityEngine.SpatialTracking.dll</HintPath>
     </Reference>
+    <Reference Include="LastOutsiderClientNetwork">
+      <HintPath>D:/Project/leekHouse/LastOutsider/LastOutsiderClient/Assets/GeneratedPlugin/LastOutsiderClientNetwork.dll</HintPath>
+    </Reference>
+    <Reference Include="LastOutsiderShared">
+      <HintPath>D:/Project/leekHouse/LastOutsider/LastOutsiderClient/Assets/GeneratedPlugin/LastOutsiderShared.dll</HintPath>
+    </Reference>
+    <Reference Include="MessagePack">
+      <HintPath>D:/Project/leekHouse/LastOutsider/LastOutsiderClient/Assets/GeneratedPlugin/MessagePack.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions">
+      <HintPath>D:/Project/leekHouse/LastOutsider/LastOutsiderClient/Assets/GeneratedPlugin/System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Analytics.Editor">
       <HintPath>D:/Project/leekHouse/LastOutsider/LastOutsiderClient/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Editor.dll</HintPath>
     </Reference>
@@ -286,18 +303,6 @@
     </Reference>
     <Reference Include="Unity.Analytics.Tracker">
       <HintPath>D:/Project/leekHouse/LastOutsider/LastOutsiderClient/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Tracker.dll</HintPath>
-    </Reference>
-    <Reference Include="LastOutsiderClientNetwork">
-      <HintPath>D:/Project/leekHouse/LastOutsider/LastOutsiderClient/Assets/GeneratedPlugin/LastOutsiderClientNetwork.dll</HintPath>
-    </Reference>
-    <Reference Include="MessagePack">
-      <HintPath>D:/Project/leekHouse/LastOutsider/LastOutsiderClient/Assets/GeneratedPlugin/MessagePack.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Threading.Tasks.Extensions">
-      <HintPath>D:/Project/leekHouse/LastOutsider/LastOutsiderClient/Assets/GeneratedPlugin/System.Threading.Tasks.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="LastOutsiderShared">
-      <HintPath>D:/Project/leekHouse/LastOutsider/LastOutsiderClient/Assets/GeneratedPlugin/LastOutsiderShared.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2018.3.12f1/Editor/Data/NetStandard/ref/2.0.0/netstandard.dll</HintPath>
