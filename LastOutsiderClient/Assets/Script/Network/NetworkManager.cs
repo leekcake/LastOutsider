@@ -1,6 +1,7 @@
 ﻿using LastOutsiderClientNetwork.Packet;
 using LastOutsiderClientNetwork.Packet.Extension.Login;
 using LastOutsiderClientNetwork.Packet.Login;
+using LastOutsiderShared;
 using LastOutsiderShared.Connection;
 using LastOutsiderShared.Data;
 using MessagePack;
@@ -12,9 +13,18 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 public class NetworkManager
 {
+    private class Printer : PrintHelper
+    {
+        public void Printline(string line)
+        {
+            Debug.Log(line);
+        }
+    }
+
     #region Singleton
     private static NetworkManager instance;
     public static NetworkManager Instance {
@@ -53,7 +63,8 @@ public class NetworkManager
         {
             SocketInCreate = true;
             tcpClient = new TcpClient();
-            GameSocket gameSocket = new GameSocket();
+            gameSocket = new GameSocket();
+            gameSocket.printHelper = new Printer();
             var handshakeCI = ConnectCanvas.Instance.CreateConnectInformation("서버에 연결", async (listener) =>
             {
                 try
