@@ -54,6 +54,13 @@ public partial class ConnectCanvas : MonoBehaviour
             get; private set;
         } = false;
 
+        /// <summary>
+        /// 이 연결 정보가 파괴되었는지의 여부
+        /// </summary>
+        public bool IsDestroyed {
+            get; private set;
+        } = false;
+
         public BaseConnectInformation(ConnectCanvas owner, string message, int maxTry = 3, bool verbose = false)
         {
             Owner = owner;
@@ -125,6 +132,7 @@ public partial class ConnectCanvas : MonoBehaviour
             {
                 Owner.RegisteredConnect.Remove(this);
             }
+            IsDestroyed = true;
         }
 
         protected void OnError(string message)
@@ -199,6 +207,14 @@ public partial class ConnectCanvas : MonoBehaviour
             });
         }
 
+        public async Task WaitAsync()
+        {
+            while( !IsDestroyed )
+            {
+                await Task.Delay(1);
+            }
+        }
+
         protected override void CallMakeConnection()
         {
             MakeConnection(mirrorListener);
@@ -211,6 +227,8 @@ public partial class ConnectCanvas : MonoBehaviour
         private Action<FinishListener<Data>> MakeConnection;
         private FinishListener<Data> mirrorListener;
 
+        private Data Result = default;
+
         public ConnectInformation(ConnectCanvas owner, Action<FinishListener<Data>> makeConnection, FinishListener<Data> listener, string message, int maxTry = 3, bool verbose = false) : base(owner, message, maxTry, verbose)
         {
             MakeConnection = makeConnection;
@@ -218,6 +236,7 @@ public partial class ConnectCanvas : MonoBehaviour
 
             mirrorListener = new FinishListener<Data>((data) =>
             {
+                Result = data;
                 finishListener?.OnFinish(data);
                 OnFinish();
             }, (errorMessage) =>
@@ -225,6 +244,15 @@ public partial class ConnectCanvas : MonoBehaviour
                 finishListener?.OnError(errorMessage);
                 OnError(errorMessage);
             });
+        }
+
+        public async Task<Data> WaitAsync()
+        {
+            while (!IsDestroyed)
+            {
+                await Task.Delay(1);
+            }
+            return Result;
         }
 
         protected override void CallMakeConnection()
@@ -235,7 +263,7 @@ public partial class ConnectCanvas : MonoBehaviour
 
     private readonly List<BaseConnectInformation> RegisteredConnect = new List<BaseConnectInformation>();
 
-    public BaseConnectInformation CreateConnectInformation(string message, Action<FinishListener> makeConnection, FinishListener listener, int maxTry = 3, bool verbose = false, bool autoStart = true)
+    public ConnectInformation CreateConnectInformation(string message, Action<FinishListener> makeConnection, FinishListener listener, int maxTry = 3, bool verbose = false, bool autoStart = true)
     {
         var connect = new ConnectInformation(this, makeConnection, listener, message, maxTry, verbose);
         lock (RegisteredConnect)
@@ -250,7 +278,7 @@ public partial class ConnectCanvas : MonoBehaviour
         return connect;
     }
 
-    public BaseConnectInformation CreateConnectInformation<T>(string message, Action<FinishListener<T>> makeConnection, FinishListener<T> listener, int maxTry = 3, bool verbose = false, bool autoStart = true)
+    public ConnectInformation<T> CreateConnectInformation<T>(string message, Action<FinishListener<T>> makeConnection, FinishListener<T> listener, int maxTry = 3, bool verbose = false, bool autoStart = true)
     {
         var connect = new ConnectInformation<T>(this, makeConnection, listener, message, maxTry, verbose);
         lock (RegisteredConnect)

@@ -9,24 +9,28 @@ namespace LastOutsiderClientNetwork.Packet.Extension.Login
 {
     public static class LoginExtension
     {
-        public static async Task GenerateAccount(this GameSocket socket, byte[] authToken, FinishListener<Account> finishListener)
+        public static async Task<Account> GenerateAccountAsync(this GameSocket socket, byte[] authToken, FinishListener<Account> finishListener)
         {
             await StaticPackets.GenerateAccount.SendPacketAsync(socket, authToken, finishListener);
+            return await finishListener.WaitAsync();
         }
 
-        public static async Task LoginAccount(this GameSocket socket, int id, byte[] authToken, FinishListener finishListener)
+        public static async Task LoginAccountAsync(this GameSocket socket, int id, byte[] authToken, FinishListener finishListener)
         {
             await StaticPackets.LoginAccount.SendPacketAsync(socket, id, authToken, finishListener);
+            await finishListener.WaitAsync();
         }
 
-        public static async Task Handshake(this GameSocket socket, FinishListener finishListener)
+        public static async Task HandshakeAsync(this GameSocket socket, FinishListener finishListener)
         {
             await StaticPackets.Handshake.SendPacketAsync(socket, finishListener);
+            await finishListener.WaitAsync();
         }
 
-        public static async Task FetchData(this GameSocket socket, FinishListener<FetchData> finishListener)
+        public static async Task<FetchData> FetchDataAsync(this GameSocket socket, FinishListener<FetchData> finishListener)
         {
             await StaticPackets.FetchData.SendPacketAsync(socket, finishListener);
+            return await finishListener.WaitAsync();
         }
     }
 }

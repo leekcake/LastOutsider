@@ -10,9 +10,10 @@ namespace LastOutsiderClientNetwork.Packet.Extension
 {
     public static class ResourceExtension
     {
-        public static async Task GetResourceStatus(this GameSocket socket, FinishListener<ResourceData> finishListener)
+        public static async Task<ResourceData> GetResourceStatus(this GameSocket socket, FinishListener<ResourceData> finishListener)
         {
             await StaticPackets.GetResourceStatus.SendPacketAsync(socket, finishListener);
+            return await finishListener.WaitAsync();
         }
     }
 }
