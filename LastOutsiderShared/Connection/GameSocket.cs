@@ -99,6 +99,38 @@ namespace LastOutsiderShared.Connection
 
             public void Run()
             {
+                //Alive Checker
+                Task.Factory.StartNew(async () =>
+                {
+                    bool pingFlag = false;
+                    while (owner.networkStream.CanRead)
+                    {
+                        await Task.Delay(1000);
+                        if (owner.LastTransferTime > DateTimeOffset.Now.ToUnixTimeMilliseconds() + 30000)
+                        {
+                            try
+                            {
+                                await owner.SendPingAsync();
+                                pingFlag = true;
+                            }
+                            catch
+                            {
+                                owner.Close();
+                                break;
+                            }
+                            continue;
+                        }
+
+                        if (owner.LastTransferTime > DateTimeOffset.Now.ToUnixTimeMilliseconds() + 60000)
+                        {
+                            owner.Close();
+                            break;
+                        }
+
+                        pingFlag = false;
+                    }
+                });
+
                 Task.Factory.StartNew(async () =>
                {
                    try
@@ -110,6 +142,9 @@ namespace LastOutsiderShared.Connection
                            Stream stream = owner.networkStream;
 
                            var header = await stream.Receive(HEADER.Length);
+
+                           owner.LastTransferTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+
                            readTaskCancellationToken.Token.ThrowIfCancellationRequested();
                            if (!Enumerable.SequenceEqual(header, HEADER))
                            {
@@ -128,9 +163,11 @@ namespace LastOutsiderShared.Connection
                            switch ((DataType)type[0])
                            {
                                case DataType.Ping:
+                                   owner.printHelper?.Printline("핑 수신");
                                    owner.SendPongAsync();
                                    goto START;
                                case DataType.Pong:
+                                   owner.printHelper?.Printline("퐁 수신");
                                    owner.LastPongTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
                                    //소켓이 아직 살아있음!
                                    goto START;
@@ -221,6 +258,7 @@ namespace LastOutsiderShared.Connection
                                        {
                                            //TODO: 해결 안된 오류 알리기
                                            Debug.WriteLine(ex.Message);
+                                           owner.printHelper?.Printline(ex.Message);
                                        }
                                        finally
                                        {
@@ -233,7 +271,17 @@ namespace LastOutsiderShared.Connection
                    }
                    catch (Exception ex)
                    {
+                       owner.printHelper?.Printline(ex.Message);
                        Debug.WriteLine(ex.Message);
+
+                       try
+                       {
+                           owner.Close();
+                       }
+                       catch
+                       {
+
+                       }
                        //TODO: 더 나은 에러 체크
                    }
                });
@@ -246,11 +294,15 @@ namespace LastOutsiderShared.Connection
         private SemaphoreSlim writeSemaphoreSlim = new SemaphoreSlim(1);
 
         public readonly EncryptHelper encryptHelper = new EncryptHelper();
+
+        private Action closeReceiver;
         private NetworkStream networkStream;
 
         private uint currentSpaceInx = 0;
 
         public long LastPongTime = -1;
+
+        public long LastTransferTime = -1;
 
         private Dictionary<string, RequestReceiver> requestReceivers = new Dictionary<string, RequestReceiver>();
         public void registerRequestReceiver(RequestReceiver receiver)
@@ -260,17 +312,38 @@ namespace LastOutsiderShared.Connection
         private Dictionary<uint, ResponseReceiver> responseReceivers = new Dictionary<uint, ResponseReceiver>();
 
         private ReadTask readTask;
-        public void AttachNetworkStream(NetworkStream stream)
+        public void AttachNetworkStream(NetworkStream stream, Action closeReceiver = null)
         {
             networkStream = stream;
+            this.closeReceiver = closeReceiver;
+            LastTransferTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
             readTask?.Stop();
             readTask = new ReadTask(this);
             readTask.Run();
         }
 
+        public void Close()
+        {
+            printHelper?.Printline("연결 닫힘 :(");
+            try
+            {
+                networkStream.Close();
+            }
+            catch
+            {
+                
+            }
+            finally
+            {
+                networkStream = null;
+                closeReceiver?.Invoke();
+            }
+        }
+
         public async Task SendPingAsync()
         {
+            printHelper?.Printline("핑 전송");
             await writeSemaphoreSlim.WaitAsync();
             try
             {
@@ -284,6 +357,7 @@ namespace LastOutsiderShared.Connection
 
         public async Task SendPongAsync()
         {
+            printHelper?.Printline("퐁 전송");
             await writeSemaphoreSlim.WaitAsync();
             try
             {
