@@ -80,10 +80,10 @@ public class PanelTitle : MonoBehaviour
             }, new FinishListener<FetchData>((data) =>
             {
                 DataManager.Instance.ReadFetchData(data);
-            }, (message) => { })
+            }, (message) => {  }), autoStart: false
             )).WaitAsync();
 
-            //SceneManager.LoadSceneAsync("MainScene");
+            SceneManager.LoadScene("MainScene");
         }
         TouchProgress = false;
     }

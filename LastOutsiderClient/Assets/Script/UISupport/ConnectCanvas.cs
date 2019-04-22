@@ -98,7 +98,8 @@ public partial class ConnectCanvas : MonoBehaviour
         {
             if(connectInformation.IsStarted)
             {
-                throw new InvalidOperationException("Given ConnectInformation is already started, may need to disable auotStart");
+                Debug.LogError("Given ConnectInformation is already started, may need to disable auotStart");
+                return default(T);
             }
 
             //이 연결정보가 벌써 임무를 마친경우 - 좀 늦게 StartAfter를 호출한경우
@@ -210,7 +211,7 @@ public partial class ConnectCanvas : MonoBehaviour
 
         public async Task WaitAsync()
         {
-            while( !IsDestroyed )
+            while ( !IsDestroyed )
             {
                 await Task.Delay(3);
             }
