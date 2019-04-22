@@ -93,7 +93,8 @@ public partial class ConnectCanvas : MonoBehaviour
         /// </summary>
         /// <param name="connectInformation">이 연결이 성공하면 실행할 연결</param>
         /// <returns>인자로 받은 연결</returns>
-        public BaseConnectInformation StartAfter(BaseConnectInformation connectInformation)
+        public T StartAfter<T>(T connectInformation)
+            where T : BaseConnectInformation
         {
             if(connectInformation.IsStarted)
             {
