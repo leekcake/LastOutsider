@@ -15,6 +15,6 @@ public class ResourcePanel : MonoBehaviour
         Money.text = $"{resource.Money}/+{resource.MoneyRecoveryAmount}";
         Food.text = $"{resource.Food}/+{resource.FoodRecoveryAmount}";
         Electric.text = $"{resource.Electric}/+{resource.ElectricRecoveryAmount}";
-        Time.text = $"{resource.Time}/+{resource.ElectricRecoveryAmount}";
+        Time.text = $"{resource.Time}/+{resource.TimeRecoveryAmount}";
     }
 }
