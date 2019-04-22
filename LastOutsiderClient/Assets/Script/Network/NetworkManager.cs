@@ -34,6 +34,9 @@ public class NetworkManager
 
     private TcpClient tcpClient = null;
     private GameSocket gameSocket = null;
+
+    private bool SocketInCreate = false;
+    
     /// <summary>
     /// 저장되어 있는 게임 소켓을 반환합니다
     /// </summary>
@@ -41,8 +44,14 @@ public class NetworkManager
     /// <returns></returns>
     public async Task<GameSocket> GetGameSocketAsync(bool createIfMissing = true, bool loginIfMissing = true)
     {
+        while(SocketInCreate)
+        {
+            await Task.Delay(1);
+        }
+
         if (gameSocket == null && createIfMissing)
         {
+            SocketInCreate = true;
             tcpClient = new TcpClient();
             GameSocket gameSocket = new GameSocket();
             var handshakeCI = ConnectCanvas.Instance.CreateConnectInformation("서버에 연결", async (listener) =>
@@ -60,7 +69,11 @@ public class NetworkManager
             }, null, -1)
             .StartAfter(ConnectCanvas.Instance.CreateConnectInformation("연결을 암호화", (receiver) =>
             {
-                gameSocket.Handshake(receiver);
+                gameSocket.HandshakeAsync(receiver);
+                if(!loginIfMissing)
+                {
+                    SocketInCreate = false;
+                }
             }, null, autoStart: false));
 
             if (loginIfMissing)
@@ -72,14 +85,15 @@ public class NetworkManager
                     {
                         throw new Exception("계정이 없음");
                     }
-                    gameSocket.LoginAccount(account.Id, account.AuthToken, listener);
+                    gameSocket.LoginAccountAsync(account.Id, account.AuthToken, listener);
                 }, null, autoStart: false))
                 .StartAfter(ConnectCanvas.Instance.CreateConnectInformation("시작 데이터 가져오는중", (listener) =>
                 {
-                    gameSocket.FetchData(listener);
+                    gameSocket.FetchDataAsync(listener);
                 }, new FinishListener<FetchData>((data) =>
                 {
                     DataManager.Instance.ReadFetchData(data);
+                    SocketInCreate = false;
                 }, (message) => { })
                 ));
 
