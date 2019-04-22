@@ -22,6 +22,8 @@ public partial class ConnectCanvas : MonoBehaviour
     }
     #endregion
 
+    private ConcurrentStack<Action> invokeActions;
+
     #region BaseConnectInformation
     public abstract class BaseConnectInformation
     {
@@ -83,7 +85,10 @@ public partial class ConnectCanvas : MonoBehaviour
             IsStarted = true;
             InOperation = true;
             CallMakeConnection();
-            Owner.gameObject.SetActive(true);
+            InvokeManager.Instance.Invoke(() =>
+            {
+                Owner.gameObject.SetActive(true);
+            });
             return this;
         }
 
