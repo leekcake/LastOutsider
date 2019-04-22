@@ -197,6 +197,7 @@ namespace LastOutsiderShared.Connection
                                            catch (Exception ex)
                                            {
                                                //TODO: 해결 안된 오류 알리기
+                                               owner.printHelper?.Printline(ex.Message + "\r\n" + ex.StackTrace);
                                                Debug.WriteLine(ex.Message);
                                            }
                                            finally

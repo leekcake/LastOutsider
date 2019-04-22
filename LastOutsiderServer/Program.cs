@@ -13,9 +13,13 @@ namespace LastOutsiderServer
     {
         private class Printer : PrintHelper
         {
+
             public void Printline(string line)
             {
-                Console.WriteLine(line);
+                lock (this)
+                {
+                    Console.WriteLine(line);
+                }
             }
         }
 
@@ -25,6 +29,7 @@ namespace LastOutsiderServer
 
             var listener = new TcpListener(IPAddress.Any, 8039);
             listener.Start();
+            print.Printline("서버가 8039 포트에서 클라이언트 대기");
             new Task(async () =>
             {
                 while (true)
