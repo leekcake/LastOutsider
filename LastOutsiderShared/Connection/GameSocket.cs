@@ -106,7 +106,7 @@ namespace LastOutsiderShared.Connection
                     while (owner.networkStream.CanRead)
                     {
                         await Task.Delay(1000);
-                        if (owner.LastTransferTime > DateTimeOffset.Now.ToUnixTimeMilliseconds() + 30000)
+                        if (owner.LastTransferTime > DateTimeOffset.Now.ToUnixTimeMilliseconds() - 30000)
                         {
                             try
                             {
@@ -121,7 +121,7 @@ namespace LastOutsiderShared.Connection
                             continue;
                         }
 
-                        if (owner.LastTransferTime > DateTimeOffset.Now.ToUnixTimeMilliseconds() + 60000)
+                        if (owner.LastTransferTime > DateTimeOffset.Now.ToUnixTimeMilliseconds() - 60000)
                         {
                             owner.Close();
                             break;
