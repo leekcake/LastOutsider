@@ -60,6 +60,10 @@ public partial class ConnectCanvas : MonoBehaviour
             Message = message;
             MaxTry = maxTry;
             Verbose = verbose;
+            if( Application.platform == RuntimePlatform.WindowsEditor )
+            {
+                Verbose = true;
+            }
         }
 
         /// <summary>
@@ -106,6 +110,7 @@ public partial class ConnectCanvas : MonoBehaviour
         {
             IsFinished = true;
             InOperation = false;
+            AfterRun?.Start();
             Destroy();
         }
 
@@ -272,16 +277,15 @@ public partial class ConnectCanvas : MonoBehaviour
 
     private void Update()
     {
-        if(RegisteredConnect.Count == 0)
-        {
-            gameObject.SetActive(false);
-            return;
-        }
-
         BaseConnectInformation connectInformation;
 
         lock(RegisteredConnect)
         {
+            if (RegisteredConnect.Count == 0)
+            {
+                gameObject.SetActive(false);
+                return;
+            }
             connectInformation = RegisteredConnect[0];
         }
 
