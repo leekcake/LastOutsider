@@ -20,6 +20,32 @@ namespace LastOutsiderShared.Data
             get; set;
         }
 
+        /// <summary>
+        /// 자연 회복 최대 상한치
+        /// </summary>
+        [Key(9)]
+        public int ResourceRecoverMax {
+            get; set;
+        }
+
+        public int CalcRecover(int Value, int Add, int Max)
+        {
+            //이미 자원이 Max치를 넘긴경우
+            //과금등으로 Max치를 넘긴 경우일 가능성이 있으므로 그냥 돌려줌
+            if(Value >= Max)
+            {
+                return Value;
+            }
+
+            Value += Add;
+
+            if (Value > Max) //더한 뒤 Max치를 넘겼다면, 자연 회복으로 최대치를 넘겼다고 판단, Max치로 설정
+            {
+                Value = Max;
+            }
+            return Value;
+        }
+
         [Key(1)]
         public int Money {
             get; set;

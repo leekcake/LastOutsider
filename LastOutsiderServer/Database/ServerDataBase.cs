@@ -25,7 +25,7 @@ namespace LastOutsiderServer.Database
             mapper.Entity<ResourceInServer>()
                 .Id(x => x.UserId);
 
-            Directory.CreateDirectory("Accounts");
+            //Directory.CreateDirectory("Accounts");
         }
 
         private LiteDatabase database = new LiteDatabase(@"filename=Server.db;utc=true;");
@@ -68,14 +68,15 @@ namespace LastOutsiderServer.Database
             
             var resource = collections.FindOne(x => x.UserId == id);
             //TODO: 더 나은 자연회복 처리시점
+            //TODO: 더 나은 자연회복 처리코드 (while 대신 곱하기 사용)
             bool updated = false;
             int compare;
             while ( ( compare = DateTime.Compare(DateTime.UtcNow, resource.NextRecoverTime) ) > 0 )
             {
-                resource.Money += resource.MoneyRecoveryAmount;
-                resource.Food += resource.FoodRecoveryAmount;
-                resource.Electric += resource.ElectricRecoveryAmount;
-                resource.Time += resource.TimeRecoveryAmount;
+                resource.Money += resource.CalcRecover(resource.Money, resource.ResourceRecoverMax, resource.MoneyRecoveryAmount);
+                resource.Food += resource.CalcRecover(resource.Money, resource.ResourceRecoverMax, resource.FoodRecoveryAmount);
+                resource.Electric += resource.CalcRecover(resource.Money, resource.ResourceRecoverMax, resource.ElectricRecoveryAmount);
+                resource.Time += resource.CalcRecover(resource.Money, resource.ResourceRecoverMax, resource.TimeRecoveryAmount);
                 resource.NextRecoverTime = resource.NextRecoverTime.AddMinutes(3);
                 updated = true;
             }
@@ -84,7 +85,7 @@ namespace LastOutsiderServer.Database
                 UpdateResource(resource);
             }
             return resource;
-        }
+        }        
 
         public void UpdateResource(ResourceInServer resource)
         {
