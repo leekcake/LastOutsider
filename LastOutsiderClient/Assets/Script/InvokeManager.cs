@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,6 +34,16 @@ public class InvokeManager : MonoBehaviour
             {
                 action();
             }
+        }
+
+        if( Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.G) && Application.isEditor )
+        {
+            try
+            {
+                File.Delete(Consts.ACCOUNT_FILE);
+            }
+            catch { }
+            UnityEditor.EditorApplication.isPlaying = false;
         }
     }
 }
