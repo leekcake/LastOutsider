@@ -15,7 +15,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class NetworkManager
+public class NetworkManager : MonoBehaviour
 {
     private class Printer : PrintHelper
     {
@@ -29,17 +29,7 @@ public class NetworkManager
     }
 
     #region Singleton
-    private static NetworkManager instance;
-    public static NetworkManager Instance {
-        get {
-            if (instance == null)
-            {
-                instance = new NetworkManager();
-            }
-
-            return instance;
-        }
-    }
+    public static NetworkManager Instance { get; private set; }
     #endregion
 
     private static readonly IPAddress serverIP = IPAddress.Loopback;
@@ -49,7 +39,24 @@ public class NetworkManager
     private GameSocket gameSocket = null;
 
     private bool SocketInCreate = false;
-    
+
+    private void Awake()
+    {
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
+    private void OnApplicationQuit()
+    {
+        try
+        {
+            gameSocket?.Close();
+        } catch
+        {
+
+        }
+    }
+
     /// <summary>
     /// 저장되어 있는 게임 소켓을 반환합니다
     /// </summary>
