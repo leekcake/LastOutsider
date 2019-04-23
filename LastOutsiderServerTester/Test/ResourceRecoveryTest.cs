@@ -24,6 +24,7 @@ namespace LastOutsiderServerTester.Test
             resource.Food = 5000;
             resource.Electric = 5000;
             resource.Time = 5000;
+            resource.ResourceRecoverMax = 15000;
             resource.NextRecoverTime = DateTime.UtcNow;
             ServerDataBase.Instance.UpdateResource(resource);
             var recovery = ServerDataBase.Instance.GetResource(account.Id);

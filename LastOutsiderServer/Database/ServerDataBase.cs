@@ -46,6 +46,7 @@ namespace LastOutsiderServer.Database
             resource.Food = 5000;
             resource.Money = 5000;
             resource.Time = 5000;
+            resource.ResourceRecoverMax = 15000;
             resource.NextRecoverTime = DateTime.UtcNow.AddMinutes(3);
             resource.UserId = account.Id;
 
@@ -73,10 +74,10 @@ namespace LastOutsiderServer.Database
             int compare;
             while ( ( compare = DateTime.Compare(DateTime.UtcNow, resource.NextRecoverTime) ) > 0 )
             {
-                resource.Money += resource.CalcRecover(resource.Money, resource.ResourceRecoverMax, resource.MoneyRecoveryAmount);
-                resource.Food += resource.CalcRecover(resource.Money, resource.ResourceRecoverMax, resource.FoodRecoveryAmount);
-                resource.Electric += resource.CalcRecover(resource.Money, resource.ResourceRecoverMax, resource.ElectricRecoveryAmount);
-                resource.Time += resource.CalcRecover(resource.Money, resource.ResourceRecoverMax, resource.TimeRecoveryAmount);
+                resource.Money = resource.CalcRecover(resource.Money, resource.MoneyRecoveryAmount, resource.ResourceRecoverMax);
+                resource.Food = resource.CalcRecover(resource.Food, resource.FoodRecoveryAmount, resource.ResourceRecoverMax);
+                resource.Electric = resource.CalcRecover(resource.Electric, resource.ElectricRecoveryAmount, resource.ResourceRecoverMax);
+                resource.Time = resource.CalcRecover(resource.Time, resource.TimeRecoveryAmount, resource.ResourceRecoverMax);
                 resource.NextRecoverTime = resource.NextRecoverTime.AddMinutes(3);
                 updated = true;
             }
