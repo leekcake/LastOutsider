@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestBase", "TestBase\TestBa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LastOutsiderClientNetwork", "LastOutsiderClientNetwork\LastOutsiderClientNetwork.csproj", "{533B0793-9046-4B4A-92CF-078CF984FC52}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LastOutsiderServerTester", "LastOutsiderServerTester\LastOutsiderServerTester.csproj", "{D36480FD-8C78-40E1-BA15-386897F7CD41}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LastOutsiderServerTester", "LastOutsiderServerTester\LastOutsiderServerTester.csproj", "{D36480FD-8C78-40E1-BA15-386897F7CD41}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
