@@ -12,6 +12,45 @@ namespace LastOutsiderShared.Data
     /// </summary>
     public class Character
     {
+        /// <summary>
+        /// 캐릭터마다 고정인 정보
+        /// </summary>
+        public abstract class FixedData
+        {
+            #region Enum
+            public enum Type
+            {
+                Developer = 0, //Attacker
+                QA = 1, //Defenser
+                Designer = 2 //Supporter
+            }
+
+            public enum Grade
+            {
+                SS = 0,
+                S = 1,
+                A = 2,
+                B = 3
+            }
+            #endregion
+
+            public Type TypeData {
+                get; protected set;
+            }
+
+            public Grade GradeData {
+                get; protected set;
+            }
+
+            public Skill[] Skills {
+                get; protected set;
+            }
+
+            public Passive[] Passives {
+                get; protected set;
+            }
+        }
+
         [Key(0)]
         public int Id {
             get; set;
