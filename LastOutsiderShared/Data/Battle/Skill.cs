@@ -7,7 +7,7 @@ namespace LastOutsiderShared.Data.Battle
     /// <summary>
     /// 배틀중 사용할 수 있는 스킬
     /// </summary>
-    public class Skill
+    public abstract class Skill
     {
         /// <summary>
         /// 스킬의 대상
@@ -23,12 +23,20 @@ namespace LastOutsiderShared.Data.Battle
             EnemyAndAlly = 6 //적 한명과 아군 한명
         }
 
-        public float NeedAP {
-            get; set;
+        public abstract string Name {
+            get;
         }
 
-        public Target ApplyTarget {
-            get; set;
+        public abstract string Descrption {
+            get;
+        }
+
+        public abstract float NeedAP {
+            get;
+        }
+
+        public abstract Target ApplyTarget {
+            get;
         }
 
         public virtual void OnPerformSelf()
