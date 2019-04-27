@@ -56,5 +56,29 @@ namespace LastOutsiderShared.Data.Battle
         public List<Status> Statuses {
             get; set;
         }
+
+        /// <summary>
+        /// 주어진 데미지에서 상태등으로 인한 데미지 증감을 적용해
+        /// 되돌려줍니다
+        /// </summary>
+        /// <param name="damage">원래 데미지</param>
+        /// <returns>실제로 가해야 할 데미지</returns>
+        public float CalculationAttackDamage(float damage)
+        {
+            //TODO: 실질적인 데미지 계산
+            return damage;
+        }
+
+        /// <summary>
+        /// 주어진 데미지에서 상태등으로 인한 데미지 증감을 적용한뒤
+        /// 현재 체력을 수치만큼 깍고, 실제로 적용된 데미지를 반환합니다
+        /// </summary>
+        /// <param name="damage"></param>
+        /// <returns>실제로 받은 데미지</returns>
+        public float ApplyDamage(float damage)
+        {
+            //TODO: 실질적인 데미지 계산
+            return damage;
+        }
     }
 }
