@@ -9,6 +9,10 @@ namespace LastOutsiderShared.Data.Battle
     /// </summary>
     public abstract class Skill
     {
+        public FightableActor Performer {
+            get; set;
+        }
+
         /// <summary>
         /// 스킬의 대상
         /// </summary>

@@ -9,6 +9,10 @@ namespace LastOutsiderShared.Data.Battle
     /// </summary>
     public abstract class Passive
     {
+        public FightableActor Performer {
+            get; set;
+        }
+
         public abstract string Name {
             get;
         }
