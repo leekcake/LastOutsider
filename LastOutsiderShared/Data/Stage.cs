@@ -18,5 +18,15 @@ namespace LastOutsiderShared.Data
 
         [Key(1)]
         public List<Enemy[]> Enemies;
+
+        [IgnoreMember]
+        public List<string> Log {
+            get; private set;
+        } = new List<string>();
+
+        public void InsertLog(string message)
+        {
+            Log.Add(message);
+        }
     }
 }
