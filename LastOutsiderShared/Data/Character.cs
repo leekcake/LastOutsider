@@ -12,6 +12,10 @@ namespace LastOutsiderShared.Data
     /// </summary>
     public class Character
     {
+        public static readonly string DEVELOPER_KEY = "Character/Developer/";
+        public static readonly string QA_KEY = "Character/QA/";
+        public static readonly string DESIGNER_KEY = "Character/Designer/";
+
         /// <summary>
         /// 캐릭터마다 고정인 정보
         /// </summary>

@@ -12,6 +12,10 @@ namespace LastOutsiderShared.Data
     /// </summary>
     public class Enemy
     {
+        public static readonly string BUG_KEY = "Enemy/Bug/";
+        public static readonly string SPAGHETTI_CODE_KEY = "Enemy/Spaghetti Code/";
+        public static readonly string SIDE_EFFECT_CODE_KEY = "Enemy/Side Effect Code/";
+
         [Key(0)]
         public int Index {
             get; set;

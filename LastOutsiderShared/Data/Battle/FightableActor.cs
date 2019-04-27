@@ -12,12 +12,94 @@ namespace LastOutsiderShared.Data.Battle
     /// </summary>
     public class FightableActor
     {
+        #region Helper Class
+        public class CharacterHelper
+        {
+            private FightableActor fightableActor;
+
+            public CharacterHelper(FightableActor fightableActor)
+            {
+                this.fightableActor = fightableActor;
+            }
+
+            public bool IsDeveloper {
+                get {
+                    return fightableActor.Key.StartsWith(Character.DEVELOPER_KEY);
+                }
+            }
+
+            public bool IsQA {
+                get {
+                    return fightableActor.Key.StartsWith(Character.QA_KEY);
+                }
+            }
+
+            public bool IsDesigner {
+                get {
+                    return fightableActor.Key.StartsWith(Character.DESIGNER_KEY);
+                }
+            }
+        }
+
+        public class EnemyHelper
+        {
+            private FightableActor fightableActor;
+
+            public EnemyHelper(FightableActor fightableActor)
+            {
+                this.fightableActor = fightableActor;
+            }
+
+            public bool IsBug {
+                get {
+                    return fightableActor.Key.StartsWith(Enemy.BUG_KEY);
+                }
+            }
+
+            public bool IsSpaghettiCode {
+                get {
+                    return fightableActor.Key.StartsWith(Enemy.SPAGHETTI_CODE_KEY);
+                }
+            }
+
+            public bool IsSideEffectCode {
+                get {
+                    return fightableActor.Key.StartsWith(Enemy.SIDE_EFFECT_CODE_KEY);
+                }
+            }
+        }
+        #endregion
+
         /// <summary>
         /// 이 객체를 구분하는 키
         /// </summary>
         [Key(0)]
         public string Key {
             get; set;
+        }
+
+        [IgnoreMember]
+        public bool IsCharacter {
+            get {
+                return Key.StartsWith("Character/");
+            }
+        }
+
+        [IgnoreMember]
+        public CharacterHelper IfCharacter {
+            get; private set;
+        };
+
+        [IgnoreMember]
+        public EnemyHelper IfEnemy {
+            get; private set;
+        }
+
+        [IgnoreMember]
+        public bool IsEnemy {
+            get {
+                return Key.StartsWith("Enemy/");
+            }
         }
 
         /// <summary>
