@@ -35,6 +35,10 @@ namespace LastOutsiderShared.Data.Battle
             get;
         }
 
+        public abstract string FormattedDescription {
+            get;
+        }
+
         public abstract float NeedAP {
             get;
         }

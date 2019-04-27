@@ -156,11 +156,25 @@ namespace LastOutsiderShared.Data.Battle
         /// 현재 체력을 수치만큼 깍고, 실제로 적용된 데미지를 반환합니다
         /// </summary>
         /// <param name="damage"></param>
-        /// <returns>실제로 받은 데미지</returns>
+        /// <returns>실제로 적용된 데미지</returns>
         public float ApplyDamage(float damage)
         {
             //TODO: 실질적인 데미지 계산
+            HP -= (int)damage;
             return damage;
+        }
+
+        /// <summary>
+        /// 주어진 힐량에서 상태등으로 인한 증감을 적용한뒤
+        /// 현재 체력을 수치만큼 회복시키고, 실제로 적용된 힐량을 반환합니다
+        /// </summary>
+        /// <param name="heal">힐량</param>
+        /// <returns>실제로 적용된 힐량</returns>
+        public float ApplyHeal(float heal)
+        {
+            //TODO: 실질적인 힐량 계산
+            HP += (int)heal;
+            return heal;
         }
     }
 }
