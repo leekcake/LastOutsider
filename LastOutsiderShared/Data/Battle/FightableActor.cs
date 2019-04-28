@@ -88,7 +88,7 @@ namespace LastOutsiderShared.Data.Battle
         [IgnoreMember]
         public CharacterHelper IfCharacter {
             get; private set;
-        };
+        }
 
         [IgnoreMember]
         public EnemyHelper IfEnemy {
