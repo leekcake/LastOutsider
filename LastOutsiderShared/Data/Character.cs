@@ -19,7 +19,7 @@ namespace LastOutsiderShared.Data
         /// <summary>
         /// 캐릭터마다 고정인 정보
         /// </summary>
-        public abstract class FixedData
+        public abstract class FixedData : FightableActor.FixedData
         {
             #region Enum
             public enum Type
@@ -53,6 +53,8 @@ namespace LastOutsiderShared.Data
             public Passive[] Passives {
                 get; protected set;
             }
+            public abstract string Name { get; }
+            public abstract string Key { get; }
         }
 
         [Key(0)]

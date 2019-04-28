@@ -12,6 +12,10 @@ namespace LastOutsiderShared.Data.Characters
     /// </summary>
     public class ProtoZunko : Character.FixedData
     {
+        public override string Name => "즌코 (개발자형)";
+
+        public override string Key => Character.DEVELOPER_KEY + "ProtoZunko";
+
         public class Zunko1stSkill : Skill
         {
             public override string Name => "디버깅";

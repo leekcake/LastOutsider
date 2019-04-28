@@ -1,4 +1,5 @@
-﻿using MessagePack;
+﻿using LastOutsiderShared.Data.Characters;
+using MessagePack;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -73,6 +74,10 @@ namespace LastOutsiderShared.Data.Battle
         #region Fixed Data
         public interface FixedData
         {
+            string Key {
+                get;
+            }
+
             string Name {
                 get;
             }
@@ -80,6 +85,23 @@ namespace LastOutsiderShared.Data.Battle
 
         public static readonly Dictionary<string, FixedData> FixedDatas = new Dictionary<string, FixedData>();
         #endregion
+
+        #region Fixed Data List
+        private static void InsertFixedData(FixedData fixedData)
+        {
+            FixedDatas.Add(fixedData.Key, fixedData);
+        }
+
+        public static void InitFixedDataList()
+        {
+            InsertFixedData(new ProtoZunko());
+        }
+        #endregion
+
+        static FightableActor()
+        {
+            InitFixedDataList();
+        }
 
         /// <summary>
         /// 이 객체를 구분하는 키
