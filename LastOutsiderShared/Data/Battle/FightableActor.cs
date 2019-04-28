@@ -157,11 +157,13 @@ namespace LastOutsiderShared.Data.Battle
         /// </summary>
         /// <param name="damage"></param>
         /// <returns>실제로 적용된 데미지</returns>
-        public float ApplyDamage(float damage)
+        public int ApplyDamage(float damage)
         {
             //TODO: 실질적인 데미지 계산
-            HP -= (int)damage;
-            return damage;
+
+            int convertedDamage = (int)damage;
+            HP -= convertedDamage;
+            return convertedDamage;
         }
 
         /// <summary>
@@ -170,11 +172,12 @@ namespace LastOutsiderShared.Data.Battle
         /// </summary>
         /// <param name="heal">힐량</param>
         /// <returns>실제로 적용된 힐량</returns>
-        public float ApplyHeal(float heal)
+        public int ApplyHeal(float heal)
         {
             //TODO: 실질적인 힐량 계산
-            HP += (int)heal;
-            return heal;
+            int convertedHeal = (int)heal;
+            HP += convertedHeal;
+            return convertedHeal;
         }
     }
 }
