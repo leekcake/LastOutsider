@@ -70,6 +70,17 @@ namespace LastOutsiderShared.Data.Battle
         }
         #endregion
 
+        #region Fixed Data
+        public interface FixedData
+        {
+            string Name {
+                get;
+            }
+        }
+
+        public static readonly Dictionary<string, FixedData> FixedDatas = new Dictionary<string, FixedData>();
+        #endregion
+
         /// <summary>
         /// 이 객체를 구분하는 키
         /// </summary>
@@ -81,7 +92,13 @@ namespace LastOutsiderShared.Data.Battle
         [IgnoreMember]
         public string Name {
             get {
-                throw new NotImplementedException();
+                FixedData fixedData = null;
+                FixedDatas.TryGetValue(Key, out fixedData);
+                if(fixedData == null)
+                {
+                    return "더미";
+                }
+                return fixedData.Name;
             }
         }
 
