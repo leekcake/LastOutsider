@@ -13,6 +13,10 @@ namespace LastOutsiderShared.Data.Battle
             get; set;
         }
 
+        public Stage FightStage {
+            get; set;
+        }
+
         /// <summary>
         /// 스킬의 대상
         /// </summary>
@@ -45,6 +49,18 @@ namespace LastOutsiderShared.Data.Battle
 
         public abstract Target ApplyTarget {
             get;
+        }
+
+        public void PrintAttackLog(FightableActor target, int damage)
+        {
+            FightStage.InsertLog($"{Performer.Name}가 {target.Name}에게 {damage} 만큼의 데미지를 입혔습니다.");
+        }
+
+
+
+        public void PrintHealLog(FightableActor target, int heal)
+        {
+            FightStage.InsertLog($"{Performer.Name}가 {target.Name}을(를) {heal} 만큼 회복시켰습니다.");
         }
 
         public virtual void OnPerformSelf()
