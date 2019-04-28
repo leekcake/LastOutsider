@@ -79,6 +79,13 @@ namespace LastOutsiderShared.Data.Battle
         }
 
         [IgnoreMember]
+        public string Name {
+            get {
+                throw new NotImplementedException();
+            }
+        }
+
+        [IgnoreMember]
         public bool IsCharacter {
             get {
                 return Key.StartsWith("Character/");
