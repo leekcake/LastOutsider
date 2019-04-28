@@ -31,7 +31,7 @@ namespace LastOutsiderShared.Data.Characters
                 {
                     damage *= 1.5f;
                 }
-                enemy.ApplyDamage(Performer.CalculationAttackDamage(damage));
+                PrintAttackLog(enemy, enemy.ApplyDamage(Performer.CalculationAttackDamage(damage)));
             }
         }
 
@@ -56,20 +56,20 @@ namespace LastOutsiderShared.Data.Characters
                 {
                     if(enemy.IfEnemy.IsSpaghettiCode)
                     {
-                        enemy.ApplyDamage(Performer.Stat.Attack * 1.5f);
+                        PrintAttackLog(enemy, enemy.ApplyDamage(Performer.Stat.Attack * 1.5f));
                     }
                     else if(enemy.IfEnemy.IsSideEffectCode)
                     {
                         if (random.Next(0, 100) <= 5)
                         {
-                            enemy.ApplyHeal(Performer.Stat.Attack * 0.3f);
+                            PrintHealLog(enemy, enemy.ApplyHeal(Performer.Stat.Attack * 0.3f));
                         }
                     }
                     else
                     {
                         if(random.Next(0, 100) <= 30)
                         {
-                            enemy.ApplyDamage(Performer.Stat.Attack * 0.6f);
+                            PrintAttackLog(enemy, enemy.ApplyDamage(Performer.Stat.Attack * 0.6f));
                         }
                     }
                 }
